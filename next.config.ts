@@ -1,9 +1,10 @@
 import type { NextConfig } from "next";
 
+// Site 100% estático (pasta `out/`), ideal para hospedagem na Cloudflare.
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  output: "export",
+  trailingSlash: true,
+  images: { unoptimized: true },
   turbopack: {
     rules: {
       "*.css": {

@@ -1,26 +1,56 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* Identidade GG Imóveis Litoral
+   Petróleo profundo (mar aberto) + latão (sol do fim de tarde) + névoa (orla). */
+@theme {
+  --color-tinta: #0e2b33;
+  --color-mar: #1f5560;
+  --color-mar-claro: #8fb3ae;
+  --color-nevoa: #e8eeec;
+  --color-papel: #f8f9f7;
+  --color-latao: #b8894a;
+  --color-latao-escuro: #8f6630;
+  --color-areia: #e6dccb;
+  --color-cinza: #5b6b6e;
+  --color-linha: #d5dedc;
+  --color-whats: #1f9d55;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --font-display: var(--font-bodoni), "Didot", "Times New Roman", serif;
+  --font-sans: var(--font-albert), "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --animate-surgir: surgir 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  @keyframes surgir {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: none; }
   }
 }
 
+html { scroll-behavior: smooth; }
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-papel);
+  color: var(--color-tinta);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { text-wrap: balance; }
+::selection { background: var(--color-mar-claro); color: var(--color-tinta); }
+:focus-visible { outline: 2px solid var(--color-latao); outline-offset: 3px; }
+
+.rotulo {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.container-site {
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: max(20px, env(safe-area-inset-left, 0px));
+}
+@media (min-width: 768px) { .container-site { padding-inline: 40px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
