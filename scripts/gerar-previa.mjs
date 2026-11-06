@@ -42,13 +42,14 @@ function reescrever(html, rota) {
 const navegador = await chromium.launch();
 const pagina = await navegador.newPage({ viewport: { width: 1440, height: 900 } });
 const secoes = [];
-let cabecalho = "", rodape = "", flutuante = "";
+let cabecalho = "", rodape = "", flutuante = "", chatbot = "";
 for (const { rota, url } of rotas) {
   await pagina.goto(BASE + url, { waitUntil: "networkidle" });
   if (rota === "contato") {
     cabecalho = await pagina.locator("header").evaluate((e) => e.outerHTML);
     rodape = await pagina.locator("footer").evaluate((e) => e.outerHTML);
     flutuante = await pagina.locator('a[aria-label="Conversar pelo WhatsApp"]').evaluate((e) => e.outerHTML);
+    chatbot = await pagina.locator("[data-chatbot]").evaluate((e) => e.outerHTML);
   }
   const main = await pagina.locator("main").evaluate((e) => e.innerHTML);
   secoes.push(`<section data-rota="${rota}"${rota === "inicio" ? "" : " hidden"}>${reescrever(main, rota)}</section>`);
@@ -108,6 +109,7 @@ ${reescrever(cabecalho, "cab")}
 <main class="flex-1">${secoes.join("\n")}</main>
 ${reescrever(rodape, "rod")}
 ${flutuante}
+${reescrever(chatbot, "chat")}
 <div class="previa-aviso">Prévia · imóveis e imagens ilustrativos</div>
 <script>
 const IMG=${JSON.stringify(imagens)};

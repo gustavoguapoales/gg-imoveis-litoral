@@ -238,7 +238,7 @@
     });
   });
 
-  $$("form:not([role]):not([data-cabecalho])").forEach((form) => {
+  $$("form:not([role]):not([data-cabecalho]):not([data-form-chat])").forEach((form) => {
     const sec = form.closest("[data-rota]");
     const ref = DADOS[sec.dataset.rota]?.ref;
     const aviso = document.createElement("div");
@@ -257,6 +257,75 @@
       aviso.innerHTML = `<div class="previa-ok">Mensagem pronta. <a class="font-semibold text-whats underline" target="_blank" rel="noopener" href="${linkWhats(linhas.join("\n"))}">Toque aqui para abrir no WhatsApp</a> e enviar.</div>`;
     });
   });
+
+  // Assistente virtual (mesma lógica de src/lib/chatbot.ts).
+  const caixaChat = $("[data-chatbot]");
+  if (caixaChat) {
+    const dadosChat = JSON.parse(caixaChat.dataset.chat);
+    const painel = $("[data-painel-chat]", caixaChat);
+    const lista = $("[data-mensagens]", caixaChat);
+    const entrada = $("#chat-texto", caixaChat);
+    const norm = (t) => t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+    const contem = (texto, pals, k) => (k.includes(" ") ? ` ${texto} `.includes(` ${k} `) : pals.some((p) => p.startsWith(k)));
+    function responderChat(txt) {
+      const t = norm(txt), pals = t.split(" ");
+      let melhor = null, pts = 0;
+      for (const i of dadosChat.intencoes) { const p = i.chaves.filter((k) => contem(t, pals, k)).length; if (p > pts) { pts = p; melhor = i; } }
+      const c = dadosChat.cidades.find((c) => c.chaves.some((k) => contem(t, pals, k)));
+      if (c && (!melhor || ["comprar", "alugar", "cidades", "saudacao"].includes(melhor.id))) {
+        const fin = melhor && melhor.id === "alugar" ? "aluguel" : melhor && melhor.id === "comprar" ? "venda" : "";
+        const qtd = fin === "aluguel" ? c.aluguel : fin === "venda" ? c.venda : c.venda + c.aluguel;
+        const oque = fin === "aluguel" ? "para alugar" : fin === "venda" ? "à venda" : "disponíveis";
+        return {
+          texto: qtd ? `Há ${qtd} ${qtd === 1 ? "imóvel" : "imóveis"} ${oque} em ${c.nome} no momento.` : `No momento não há imóveis ${oque} em ${c.nome} anunciados no site, mas o Gustavo pode procurar um para você.`,
+          links: [...(qtd ? [{ rotulo: `Ver imóveis em ${c.nome}`, href: `/imoveis/?cidade=${c.slug}${fin ? `&finalidade=${fin}` : ""}` }] : []), { rotulo: "Falar com o Gustavo", href: dadosChat.whatsapp, externo: true }],
+          sugestoes: ["Como funciona o financiamento?", "Quero agendar uma visita"],
+        };
+      }
+      return melhor || dadosChat.naoEntendi;
+    }
+    const esc = (t) => t.replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch]);
+    function balaoBot(r) {
+      const links = (r.links || []).map((l) => l.externo
+        ? `<a href="${esc(l.href)}" target="_blank" rel="noopener" data-link-chat class="w-fit rounded-full bg-whats px-4 py-2 text-sm font-medium text-white hover:brightness-110">${esc(l.rotulo)}</a>`
+        : `<a data-ir="${esc(l.href)}" role="button" tabindex="0" data-link-chat class="w-fit cursor-pointer rounded-full border border-mar px-4 py-2 text-sm font-medium text-mar hover:bg-mar hover:text-white">${esc(l.rotulo)} →</a>`).join("");
+      const sug = r.sugestoes ? `<div class="flex flex-wrap gap-1.5 pt-1">${r.sugestoes.map((s) => `<button type="button" data-sugestao class="rounded-full border border-linha bg-papel px-3 py-1.5 text-xs text-tinta hover:border-mar hover:text-mar">${esc(s)}</button>`).join("")}</div>` : "";
+      return `<div data-balao="bot" class="mr-6 flex flex-col gap-2.5 self-start"><p class="rounded-2xl rounded-bl-sm bg-nevoa px-4 py-2.5 text-sm leading-relaxed text-tinta">${esc(r.texto)}</p>${links}${sug}</div>`;
+    }
+    function enviarChat(txt) {
+      const t = txt.trim();
+      if (!t) return;
+      lista.insertAdjacentHTML("beforeend", `<p data-balao="voce" class="ml-10 self-end rounded-2xl rounded-br-sm bg-tinta px-4 py-2.5 text-sm text-white">${esc(t)}</p>` + balaoBot(responderChat(t)));
+      entrada.value = "";
+      lista.scrollTop = lista.scrollHeight;
+    }
+    // Links internos do chat: caminho do site vira rota da prévia, com filtros quando houver.
+    function irDoChat(href) {
+      const u = new URL(href, "https://x.invalid");
+      const pag = u.pathname.replace(/\//g, "");
+      if (!pag) { location.hash = u.hash ? u.hash.slice(1) : "inicio"; return; }
+      if (pag === "imoveis") {
+        if (location.hash === "#imoveis") irPara(); else location.hash = "imoveis";
+        setTimeout(() => aplicarFiltros({ cidade: u.searchParams.get("cidade") || "", finalidade: u.searchParams.get("finalidade") || "" }), 0);
+        return;
+      }
+      location.hash = pag;
+    }
+    const alternar = (abrir) => {
+      painel.hidden = !abrir;
+      $("[data-abrir-chat]", caixaChat).setAttribute("aria-expanded", String(abrir));
+      if (abrir) { lista.scrollTop = lista.scrollHeight; entrada.focus(); }
+    };
+    $("[data-abrir-chat]", caixaChat).addEventListener("click", () => alternar(painel.hidden));
+    $("[data-fechar-chat]", caixaChat).addEventListener("click", () => alternar(false));
+    $("[data-form-chat]", caixaChat).addEventListener("submit", (e) => { e.preventDefault(); enviarChat(entrada.value); });
+    lista.addEventListener("click", (e) => {
+      const s = e.target.closest("[data-sugestao]");
+      if (s) return enviarChat(s.textContent);
+      const ir = e.target.closest("[data-ir]");
+      if (ir) { irDoChat(ir.dataset.ir); if (window.innerWidth < 640) alternar(false); }
+    });
+  }
 
   irPara();
 })();

@@ -6,7 +6,7 @@ import { IconeWhatsApp } from "./Icones";
 
 const input = "w-full rounded-sm border border-linha bg-papel px-4 py-3 text-tinta outline-none transition focus:border-mar";
 
-// Marcar serviço de drone: o botão abre o WhatsApp com a mensagem pronta, já com cidade e bairro.
+// Consulta de preço do drone: o botão abre o WhatsApp com a mensagem pronta, já com cidade e bairro.
 export function AgendarDrone() {
   const [d, setD] = useState({ tipo: TIPOS_FILMAGEM[0], cidade: CIDADES_DRONE[0], bairro: "" });
   return (
@@ -30,7 +30,7 @@ export function AgendarDrone() {
       <div className="flex flex-col gap-3 sm:col-span-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-cinza">A conversa abre no WhatsApp com a mensagem pronta para você enviar.</p>
         <a href={linkDrone(d)} data-drone-link="" target="_blank" rel="noopener" className="flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-whats px-8 py-4 font-medium text-white transition hover:brightness-110">
-          <IconeWhatsApp /> Marcar serviço
+          <IconeWhatsApp /> Ver preço
         </a>
       </div>
     </div>

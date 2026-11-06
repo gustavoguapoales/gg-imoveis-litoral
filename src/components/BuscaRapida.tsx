@@ -1,11 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { cidades, tipos } from "@/data/imoveis";
 import { CIDADES_DRONE, linkDrone, TIPOS_FILMAGEM } from "@/lib/drone";
 import { CampoValor } from "./CampoValor";
-import { IconeLupa, IconeWhatsApp } from "./Icones";
+import { IconeLupa, IconeSeta, IconeWhatsApp } from "./Icones";
 
 export const FINALIDADES = [
   { valor: "venda", rotulo: "Comprar" },
@@ -52,7 +53,7 @@ export function BuscaRapida() {
 
   return (
     <form onSubmit={buscar} role="search" aria-label="Buscar imóveis ou marcar filmagem com drone">
-      <div className="mb-px flex w-fit overflow-hidden rounded-t-sm" role="radiogroup" aria-label="O que você procura">
+      <div className="mb-px flex w-fit max-w-full overflow-x-auto rounded-t-sm" role="radiogroup" aria-label="O que você procura">
         {ABAS.map((f) => (
           <button
             key={f.valor}
@@ -61,11 +62,17 @@ export function BuscaRapida() {
             aria-checked={aba === f.valor}
             data-finalidade={f.valor}
             onClick={() => { setAba(f.valor); setPreco(""); }}
-            className={`px-6 py-3 text-sm font-semibold transition ${aba === f.valor ? "bg-papel text-tinta" : "bg-tinta/70 text-white/80 backdrop-blur hover:text-white"}`}
+            className={`shrink-0 px-4 py-3 text-sm font-semibold transition sm:px-6 ${aba === f.valor ? "bg-papel text-tinta" : "bg-tinta/70 text-white/80 backdrop-blur hover:text-white"}`}
           >
             {f.rotulo}
           </button>
         ))}
+        <Link
+          href="/anunciar/"
+          className="flex shrink-0 items-center gap-1.5 bg-latao px-4 py-3 text-sm font-semibold text-tinta sm:px-6 transition hover:brightness-105"
+        >
+          Anunciar <IconeSeta width={15} height={15} />
+        </Link>
       </div>
 
       <div data-painel="imoveis" hidden={aba === "drone"} className={`${caixa} md:grid-cols-[1.2fr_1fr_1fr_1.1fr_auto]`}>
@@ -116,7 +123,7 @@ export function BuscaRapida() {
           rel="noopener"
           className="flex items-center justify-center gap-2 whitespace-nowrap bg-whats px-7 py-4 font-medium text-white transition hover:brightness-110"
         >
-          <IconeWhatsApp /> Marcar serviço
+          <IconeWhatsApp /> Ver preço
         </a>
       </div>
     </form>

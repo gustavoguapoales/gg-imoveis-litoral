@@ -4,6 +4,8 @@ import "./globals.css";
 import { Cabecalho } from "@/components/Cabecalho";
 import { Rodape } from "@/components/Rodape";
 import { BotaoWhatsFlutuante } from "@/components/BotaoWhatsFlutuante";
+import { Chatbot } from "@/components/Chatbot";
+import { montarDadosChat } from "@/lib/chatbot-dados";
 import { SITE } from "@/lib/site";
 
 const bodoni = Bodoni_Moda({ variable: "--font-bodoni", subsets: ["latin"], style: ["normal", "italic"], display: "swap" });
@@ -39,6 +41,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main className="flex-1">{children}</main>
         <Rodape />
         <BotaoWhatsFlutuante />
+        <Chatbot dados={montarDadosChat()} />
       </body>
     </html>
   );

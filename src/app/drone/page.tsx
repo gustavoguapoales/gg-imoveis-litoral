@@ -36,7 +36,7 @@ export default function PaginaDrone() {
             Fotos e vídeos aéreos de terrenos, prédios, casas e obras no litoral paulista, com edição profissional.
           </p>
           <a href={linkDrone()} target="_blank" rel="noopener" className="mt-9 inline-flex items-center gap-2 rounded-full bg-whats px-7 py-4 font-medium text-white transition hover:brightness-110">
-            <IconeWhatsApp /> Marcar serviço
+            <IconeWhatsApp /> Ver preço
           </a>
         </div>
       </section>
@@ -116,9 +116,9 @@ export default function PaginaDrone() {
       <section id="marcar" className="container-site scroll-mt-24">
         <div className="grid gap-10 rounded-sm border border-linha bg-nevoa p-6 md:p-10 lg:grid-cols-[1fr_1.6fr]">
           <div>
-            <h2 className="font-display text-3xl">Marcar serviço</h2>
+            <h2 className="font-display text-3xl">Consultar preço</h2>
             <p className="mt-3 text-cinza">
-              Informe o que será filmado e o local. Respondo pelo WhatsApp com o valor e as datas disponíveis para o voo.
+              Informe o que será filmado e o local. Envio pelo WhatsApp o valor e as datas disponíveis para o voo.
             </p>
           </div>
           <AgendarDrone />
