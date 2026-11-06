@@ -265,32 +265,22 @@
     const painel = $("[data-painel-chat]", caixaChat);
     const lista = $("[data-mensagens]", caixaChat);
     const entrada = $("#chat-texto", caixaChat);
-    const norm = (t) => t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
-    const contem = (texto, pals, k) => (k.includes(" ") ? ` ${texto} `.includes(` ${k} `) : pals.some((p) => p.startsWith(k)));
-    function responderChat(txt) {
-      const t = norm(txt), pals = t.split(" ");
-      let melhor = null, pts = 0;
-      for (const i of dadosChat.intencoes) { const p = i.chaves.filter((k) => contem(t, pals, k)).length; if (p > pts) { pts = p; melhor = i; } }
-      const c = dadosChat.cidades.find((c) => c.chaves.some((k) => contem(t, pals, k)));
-      if (c && (!melhor || ["comprar", "alugar", "cidades", "saudacao"].includes(melhor.id))) {
-        const fin = melhor && melhor.id === "alugar" ? "aluguel" : melhor && melhor.id === "comprar" ? "venda" : "";
-        const qtd = fin === "aluguel" ? c.aluguel : fin === "venda" ? c.venda : c.venda + c.aluguel;
-        const oque = fin === "aluguel" ? "para alugar" : fin === "venda" ? "à venda" : "disponíveis";
-        return {
-          texto: qtd ? `Há ${qtd} ${qtd === 1 ? "imóvel" : "imóveis"} ${oque} em ${c.nome} no momento.` : `No momento não há imóveis ${oque} em ${c.nome} anunciados no site, mas o Gustavo pode procurar um para você.`,
-          links: [...(qtd ? [{ rotulo: `Ver imóveis em ${c.nome}`, href: `/imoveis/?cidade=${c.slug}${fin ? `&finalidade=${fin}` : ""}` }] : []), { rotulo: "Falar com o Gustavo", href: dadosChat.whatsapp, externo: true }],
-          sugestoes: ["Como funciona o financiamento?", "Quero agendar uma visita"],
-        };
-      }
-      return melhor || dadosChat.naoEntendi;
-    }
+    // Motor do assistente: o mesmo código de src/lib/chatbot.ts, empacotado pelo gerador.
+    let ctxChat = { filtros: {} };
+    const responderChat = (txt) => {
+      const r = window.ChatGG.responder(dadosChat, txt, ctxChat);
+      ctxChat = r.contexto;
+      return r.resposta;
+    };
     const esc = (t) => t.replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch]);
     function balaoBot(r) {
+      const cards = (r.imoveis || []).map((i) => `<a data-ir="/imoveis/${esc(i.slug)}/" role="button" tabindex="0" data-link-chat class="flex cursor-pointer gap-3 rounded-xl border border-linha bg-papel p-2 hover:border-mar"><img src="${IMG[i.imagem.match(/([\w-]+)\.jpg$/)[1]] || ""}" alt="" class="h-16 w-20 shrink-0 rounded-lg object-cover"><span class="min-w-0 py-0.5"><span class="block truncate text-sm font-medium text-tinta">${esc(i.titulo)}</span><span class="block truncate text-xs text-cinza">${esc(i.bairro)} · ${esc(i.cidade)}</span><span class="block text-sm font-semibold tabular-nums text-tinta">${esc(i.precoTexto)}</span></span></a>`).join("");
+      const blocoCards = cards ? `<div class="flex flex-col gap-2">${cards}</div>` : "";
       const links = (r.links || []).map((l) => l.externo
         ? `<a href="${esc(l.href)}" target="_blank" rel="noopener" data-link-chat class="w-fit rounded-full bg-whats px-4 py-2 text-sm font-medium text-white hover:brightness-110">${esc(l.rotulo)}</a>`
         : `<a data-ir="${esc(l.href)}" role="button" tabindex="0" data-link-chat class="w-fit cursor-pointer rounded-full border border-mar px-4 py-2 text-sm font-medium text-mar hover:bg-mar hover:text-white">${esc(l.rotulo)} →</a>`).join("");
       const sug = r.sugestoes ? `<div class="flex flex-wrap gap-1.5 pt-1">${r.sugestoes.map((s) => `<button type="button" data-sugestao class="rounded-full border border-linha bg-papel px-3 py-1.5 text-xs text-tinta hover:border-mar hover:text-mar">${esc(s)}</button>`).join("")}</div>` : "";
-      return `<div data-balao="bot" class="mr-6 flex flex-col gap-2.5 self-start"><p class="rounded-2xl rounded-bl-sm bg-nevoa px-4 py-2.5 text-sm leading-relaxed text-tinta">${esc(r.texto)}</p>${links}${sug}</div>`;
+      return `<div data-balao="bot" class="mr-4 flex min-w-0 flex-col gap-2.5 self-stretch"><p class="w-fit rounded-2xl rounded-bl-sm bg-nevoa px-4 py-2.5 text-sm leading-relaxed text-tinta">${esc(r.texto)}</p>${blocoCards}${links}${sug}</div>`;
     }
     function enviarChat(txt) {
       const t = txt.trim();
@@ -302,14 +292,16 @@
     // Links internos do chat: caminho do site vira rota da prévia, com filtros quando houver.
     function irDoChat(href) {
       const u = new URL(href, "https://x.invalid");
-      const pag = u.pathname.replace(/\//g, "");
-      if (!pag) { location.hash = u.hash ? u.hash.slice(1) : "inicio"; return; }
-      if (pag === "imoveis") {
+      const partes = u.pathname.split("/").filter(Boolean);
+      if (!partes.length) { location.hash = u.hash ? u.hash.slice(1) : "inicio"; return; }
+      if (partes[0] === "imoveis" && partes[1]) { location.hash = partes[1]; return; }
+      if (partes[0] === "imoveis") {
         if (location.hash === "#imoveis") irPara(); else location.hash = "imoveis";
-        setTimeout(() => aplicarFiltros({ cidade: u.searchParams.get("cidade") || "", finalidade: u.searchParams.get("finalidade") || "" }), 0);
+        const g = (k) => u.searchParams.get(k) || "";
+        setTimeout(() => aplicarFiltros({ finalidade: g("finalidade"), cidade: g("cidade"), tipo: g("tipo"), dorm: g("dorm"), preco: g("preco"), vista: g("vista") }), 0);
         return;
       }
-      location.hash = pag;
+      location.hash = partes[0];
     }
     const alternar = (abrir) => {
       painel.hidden = !abrir;

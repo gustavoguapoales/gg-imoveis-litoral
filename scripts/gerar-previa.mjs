@@ -86,6 +86,12 @@ const dados = Object.fromEntries(imoveis.map((i) => [i.slug, { ref: i.ref, titul
 const nomesCidades = Object.fromEntries(cidades.map((c) => [c.slug, c.nome]));
 
 const script = readFileSync(new URL("scripts/previa-runtime.js", RAIZ), "utf8");
+const { build } = await import("esbuild");
+const motor = await build({
+  stdin: { contents: 'import { responder } from "./src/lib/chatbot.ts"; window.ChatGG = { responder };', resolveDir: new URL(".", RAIZ).pathname, loader: "ts" },
+  bundle: true, format: "iife", minify: true, write: false, logLevel: "warning",
+});
+const motorChat = motor.outputFiles[0].text;
 
 const html = `<title>GG Imóveis Litoral</title>
 <meta name="description" content="Prévia do site GG Imóveis Litoral">
@@ -111,6 +117,7 @@ ${reescrever(rodape, "rod")}
 ${flutuante}
 ${reescrever(chatbot, "chat")}
 <div class="previa-aviso">Prévia · imóveis e imagens ilustrativos</div>
+<script>${motorChat}</script>
 <script>
 const IMG=${JSON.stringify(imagens)};
 const VIDEOS=${JSON.stringify(videos)};

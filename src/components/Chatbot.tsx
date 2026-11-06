@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { responder, type DadosChat, type Resposta } from "@/lib/chatbot";
+import { responder, type Contexto, type DadosChat, type Resposta } from "@/lib/chatbot";
 import { IconeChat, IconeEnviar, IconeFechar } from "./Icones";
 
 type Mensagem = { de: "bot" | "voce"; resposta: Resposta };
@@ -14,8 +14,23 @@ function Balao({ m, aoSugerir }: { m: Mensagem; aoSugerir: (t: string) => void }
   }
   const r = m.resposta;
   return (
-    <div data-balao="bot" className="mr-6 flex flex-col gap-2.5 self-start">
-      <p className="rounded-2xl rounded-bl-sm bg-nevoa px-4 py-2.5 text-sm leading-relaxed text-tinta">{r.texto}</p>
+    <div data-balao="bot" className="mr-4 flex min-w-0 flex-col gap-2.5 self-stretch">
+      <p className="w-fit rounded-2xl rounded-bl-sm bg-nevoa px-4 py-2.5 text-sm leading-relaxed text-tinta">{r.texto}</p>
+      {r.imoveis && r.imoveis.length > 0 && (
+        <div className="flex flex-col gap-2">
+          {r.imoveis.map((i) => (
+            <Link key={i.slug} href={`/imoveis/${i.slug}/`} data-link-chat="" className="flex gap-3 rounded-xl border border-linha bg-papel p-2 hover:border-mar">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={i.imagem} alt="" className="h-16 w-20 shrink-0 rounded-lg object-cover" />
+              <span className="min-w-0 py-0.5">
+                <span className="block truncate text-sm font-medium text-tinta">{i.titulo}</span>
+                <span className="block truncate text-xs text-cinza">{i.bairro} · {i.cidade}</span>
+                <span className="block text-sm font-semibold tabular-nums text-tinta">{i.precoTexto}</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      )}
       {r.links?.map((l) =>
         l.externo ? (
           <a key={l.href} href={l.href} target="_blank" rel="noopener" data-link-chat="" className="w-fit rounded-full bg-whats px-4 py-2 text-sm font-medium text-white hover:brightness-110">{l.rotulo}</a>
@@ -38,6 +53,7 @@ export function Chatbot({ dados }: { dados: DadosChat }) {
   const [aberto, setAberto] = useState(false);
   const [texto, setTexto] = useState("");
   const [msgs, setMsgs] = useState<Mensagem[]>([{ de: "bot", resposta: dados.boasVindas }]);
+  const [ctx, setCtx] = useState<Contexto>({ filtros: {} });
   const fim = useRef<HTMLDivElement>(null);
 
   useEffect(() => { fim.current?.scrollIntoView({ block: "end" }); }, [msgs, aberto]);
@@ -45,7 +61,9 @@ export function Chatbot({ dados }: { dados: DadosChat }) {
   function enviar(t: string) {
     const limpo = t.trim();
     if (!limpo) return;
-    setMsgs((m) => [...m, { de: "voce", resposta: { texto: limpo } }, { de: "bot", resposta: responder(dados, limpo) }]);
+    const { resposta, contexto } = responder(dados, limpo, ctx);
+    setCtx(contexto);
+    setMsgs((m) => [...m, { de: "voce", resposta: { texto: limpo } }, { de: "bot", resposta }]);
     setTexto("");
   }
 
@@ -95,7 +113,7 @@ export function Chatbot({ dados }: { dados: DadosChat }) {
             id="chat-texto"
             value={texto}
             onChange={(e) => setTexto(e.target.value)}
-            placeholder="Escreva sua dúvida…"
+            placeholder="Ex.: apê 2 quartos em Santos até 600 mil"
             autoComplete="off"
             className="min-w-0 flex-1 rounded-full border border-linha bg-papel px-4 py-2.5 text-sm outline-none focus:border-mar"
           />
