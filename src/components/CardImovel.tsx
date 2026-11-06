@@ -45,7 +45,15 @@ export function Especificacoes({ imovel, compacto = false }: { imovel: Imovel; c
 
 export function CardImovel({ imovel }: { imovel: Imovel }) {
   return (
-    <article className="group flex flex-col">
+    <article
+      className="group flex flex-col"
+      data-cidade={imovel.cidade}
+      data-tipo={imovel.tipo}
+      data-dorm={imovel.dormitorios}
+      data-preco={imovel.preco}
+      data-vista={imovel.vistaMar ? "1" : ""}
+      data-praia={imovel.distanciaPraia}
+    >
       <Link href={`/imoveis/${imovel.slug}/`} className="relative block aspect-[4/3] overflow-hidden bg-nevoa">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

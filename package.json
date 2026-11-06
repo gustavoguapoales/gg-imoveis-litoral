@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "previa": "node --experimental-strip-types --no-warnings scripts/gerar-previa.mjs"
   },
   "dependencies": {
     "next": "16.4.5",

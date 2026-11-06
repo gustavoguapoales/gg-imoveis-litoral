@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { ListaImoveis } from "@/components/ListaImoveis";
+import { ListaImoveis, ListaImoveisEstatica } from "@/components/ListaImoveis";
 
 export const metadata: Metadata = {
   title: "Imóveis à venda no litoral paulista",
@@ -15,7 +15,7 @@ export default function PaginaImoveis() {
       <h1 className="mt-3 font-display text-5xl md:text-6xl">Imóveis à venda</h1>
       <p className="mt-4 max-w-xl text-lg text-cinza">Santos, São Vicente, Praia Grande e Guarujá. Use os filtros para encontrar o imóvel certo.</p>
       <div className="mt-10">
-        <Suspense fallback={<p className="py-10 text-cinza">Carregando imóveis…</p>}>
+        <Suspense fallback={<ListaImoveisEstatica />}>
           <ListaImoveis />
         </Suspense>
       </div>

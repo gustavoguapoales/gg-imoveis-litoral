@@ -15,6 +15,9 @@ const ORDENS = [
 
 const sel = "w-full appearance-none rounded-sm border border-linha bg-papel px-3.5 py-2.5 text-sm text-tinta outline-none focus:border-mar cursor-pointer";
 
+type Filtros = { cidade: string; tipo: string; dorm: string; preco: string; vista: string; ordem: string };
+const SEM_FILTROS: Filtros = { cidade: "", tipo: "", dorm: "", preco: "", vista: "", ordem: "" };
+
 export function ListaImoveis() {
   const router = useRouter();
   const params = useSearchParams();
@@ -50,8 +53,25 @@ export function ListaImoveis() {
     return r;
   }, [f.cidade, f.tipo, f.dorm, f.preco, f.vista, f.ordem]);
 
+  const limpar = () => router.replace("/imoveis/", { scroll: false });
+
   const ativos = [f.cidade, f.tipo, f.dorm, f.preco, f.vista].filter(Boolean).length;
 
+  return <ListaVisual f={f} lista={lista} ativos={ativos} definir={definir} limpar={limpar} />;
+}
+
+// Versão sem filtros, usada no HTML pré-renderizado (todos os imóveis visíveis para o Google).
+export function ListaImoveisEstatica() {
+  return <ListaVisual f={SEM_FILTROS} lista={imoveis} ativos={0} definir={() => {}} limpar={() => {}} />;
+}
+
+function ListaVisual({ f, lista, ativos, definir, limpar }: {
+  f: Filtros;
+  lista: typeof imoveis;
+  ativos: number;
+  definir: (chave: keyof Filtros, valor: string) => void;
+  limpar: () => void;
+}) {
   return (
     <>
       <div className="sticky top-20 z-20 -mx-[max(20px,env(safe-area-inset-left,0px))] border-b border-linha bg-papel/95 px-[max(20px,env(safe-area-inset-left,0px))] py-4 backdrop-blur md:-mx-10 md:px-10">
@@ -86,7 +106,7 @@ export function ListaImoveis() {
           <strong className="font-semibold text-tinta">{lista.length}</strong> {lista.length === 1 ? "imóvel encontrado" : "imóveis encontrados"}
         </p>
         {ativos > 0 && (
-          <button type="button" onClick={() => router.replace("/imoveis/", { scroll: false })} className="text-sm text-mar underline underline-offset-4 hover:text-latao-escuro">
+          <button type="button" onClick={limpar} className="text-sm text-mar underline underline-offset-4 hover:text-latao-escuro">
             Limpar filtros
           </button>
         )}

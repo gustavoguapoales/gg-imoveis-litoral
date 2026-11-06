@@ -1,0 +1,96 @@
+// Gera previa/site-previa.html: uma cópia do site em um único arquivo HTML,
+// com navegação por âncoras (#), para visualização como página privada no claude.ai.
+// Uso: npm run build && npx serve out -l 4173  (em outro terminal)  &&  node scripts/gerar-previa.mjs
+import { readFileSync, writeFileSync, readdirSync, mkdirSync } from "node:fs";
+import { createRequire } from "node:module";
+import { imoveis, cidades } from "../src/data/imoveis.ts";
+
+const require = createRequire(import.meta.url);
+const { chromium } = require("playwright");
+const BASE = process.env.BASE ?? "http://localhost:4173";
+const RAIZ = new URL("../", import.meta.url);
+
+const rotas = [
+  { rota: "inicio", url: "/" },
+  { rota: "imoveis", url: "/imoveis/" },
+  { rota: "contato", url: "/contato/" },
+  ...imoveis.map((i) => ({ rota: i.slug, url: `/imoveis/${i.slug}/` })),
+];
+
+function reescrever(html, rota) {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/g, "")
+    .replace(/src="\/ilustracoes\/([\w-]+)\.svg"/g, 'data-img="$1"')
+    .replace(/href="\/imoveis\/\?cidade=([\w-]+)"/g, 'href="#imoveis-$1"')
+    .replace(/href="\/imoveis\/([\w-]+)\/"/g, 'href="#$1"')
+    .replace(/href="\/imoveis\/"/g, 'href="#imoveis"')
+    .replace(/href="\/contato\/"/g, 'href="#contato"')
+    .replace(/href="\/#([\w-]+)"/g, 'href="#$1"')
+    .replace(/href="\/"/g, 'href="#inicio"')
+    .replace(/href="#interesse"/g, 'data-rolar="interesse" role="button" tabindex="0" style="cursor:pointer"')
+    .replace(/id="interesse"/g, 'data-ancora="interesse"')
+    .replace(/(id|for)="ct-/g, `$1="ct-${rota}-`);
+}
+
+const navegador = await chromium.launch();
+const pagina = await navegador.newPage({ viewport: { width: 1440, height: 900 } });
+const secoes = [];
+let cabecalho = "", rodape = "", flutuante = "";
+for (const { rota, url } of rotas) {
+  await pagina.goto(BASE + url, { waitUntil: "networkidle" });
+  if (rota === "contato") {
+    cabecalho = await pagina.locator("header").evaluate((e) => e.outerHTML);
+    rodape = await pagina.locator("footer").evaluate((e) => e.outerHTML);
+    flutuante = await pagina.locator('a[aria-label="Conversar pelo WhatsApp"]').evaluate((e) => e.outerHTML);
+  }
+  const main = await pagina.locator("main").evaluate((e) => e.innerHTML);
+  secoes.push(`<section data-rota="${rota}"${rota === "inicio" ? "" : " hidden"}>${reescrever(main, rota)}</section>`);
+}
+await navegador.close();
+
+const pastaCss = new URL("out/_next/static/chunks/", RAIZ);
+const css = readdirSync(pastaCss).filter((f) => f.endsWith(".css"))
+  .map((f) => readFileSync(new URL(f, pastaCss), "utf8")).join("\n")
+  .replace(/@font-face\{[^}]*\}/g, "");
+
+const imagens = {};
+for (const f of readdirSync(new URL("public/ilustracoes/", RAIZ))) {
+  imagens[f.replace(".svg", "")] = "data:image/svg+xml;base64," + readFileSync(new URL(`public/ilustracoes/${f}`, RAIZ)).toString("base64");
+}
+const dados = Object.fromEntries(imoveis.map((i) => [i.slug, { ref: i.ref, titulo: i.titulo, imagens: i.imagens.map((s) => s.match(/([\w-]+)\.svg/)[1]) }]));
+const nomesCidades = Object.fromEntries(cidades.map((c) => [c.slug, c.nome]));
+
+const script = readFileSync(new URL("scripts/previa-runtime.js", RAIZ), "utf8");
+
+const html = `<title>GG Imóveis Litoral</title>
+<meta name="description" content="Prévia do site GG Imóveis Litoral">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--font-bodoni:"Bodoni Moda",Didot,"Times New Roman",serif;--font-albert:"Albert Sans","Helvetica Neue",Arial,sans-serif;--font-plex-mono:"IBM Plex Mono",ui-monospace,monospace;color-scheme:light}
+${css}
+body{background:#f8f9f7;color:#0e2b33;font-size:16px;margin:0}
+header.previa-transp{background:transparent!important;box-shadow:none!important;backdrop-filter:none!important}
+header.previa-transp .text-tinta{color:#fff!important}
+header.previa-transp .bg-tinta\\/25{background:rgba(255,255,255,.4)!important}
+.previa-aviso{position:fixed;left:max(16px,env(safe-area-inset-left));bottom:max(16px,env(safe-area-inset-bottom));z-index:35;background:#0e2b33;color:#fff;font:500 12px var(--font-albert);padding:8px 14px;border-radius:999px;opacity:.9;pointer-events:none;white-space:nowrap}
+.previa-caixa{position:fixed;inset:0;z-index:60;background:rgba(7,20,25,.96);display:flex;flex-direction:column}
+.previa-caixa img{max-width:100%;max-height:100%;object-fit:contain}
+.previa-ok{border-radius:4px;background:#e6f4ec;border:1px solid #b9dfc8;padding:14px 16px;font-size:14px}
+</style>
+${reescrever(cabecalho, "cab")}
+<main class="flex-1">${secoes.join("\n")}</main>
+${reescrever(rodape, "rod")}
+${flutuante}
+<div class="previa-aviso">Prévia · imóveis e imagens ilustrativos</div>
+<script>
+const IMG=${JSON.stringify(imagens)};
+const DADOS=${JSON.stringify(dados)};
+const CIDADES=${JSON.stringify(nomesCidades)};
+${script}
+</script>`;
+
+mkdirSync(new URL("previa/", RAIZ), { recursive: true });
+writeFileSync(new URL("previa/site-previa.html", RAIZ), html);
+console.log(`previa/site-previa.html gerado (${(html.length / 1024).toFixed(0)} KB, ${secoes.length} páginas)`);
