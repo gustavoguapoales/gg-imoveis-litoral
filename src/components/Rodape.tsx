@@ -33,7 +33,9 @@ export function Rodape() {
           <p className="rotulo text-latao">Navegação</p>
           <ul className="mt-5 space-y-2.5 text-sm">
             <li><Link href="/imoveis/" className="hover:text-white">Todos os imóveis</Link></li>
-            <li><Link href="/#vender" className="hover:text-white">Vender meu imóvel</Link></li>
+            <li><Link href="/anunciar/" className="hover:text-white">Anunciar imóvel</Link></li>
+            <li><Link href="/avaliacao/" className="hover:text-white">Avaliação gratuita</Link></li>
+            <li><Link href="/drone/" className="hover:text-white">Fotos com drone</Link></li>
             <li><Link href="/#atuacao" className="hover:text-white">Como trabalho</Link></li>
             <li><Link href="/contato/" className="hover:text-white">Contato</Link></li>
           </ul>
@@ -51,7 +53,7 @@ export function Rodape() {
       <div className="border-t border-white/10">
         <div className="container-site flex flex-col gap-2 py-6 text-xs text-white/45 sm:flex-row sm:justify-between">
           <p>© {new Date().getFullYear()} {SITE.nome}. Todos os direitos reservados.</p>
-          <p>Protótipo: imóveis e imagens ilustrativos.</p>
+          <p>Protótipo: imóveis de exemplo e imagens ilustrativas geradas por IA.</p>
         </div>
       </div>
     </footer>

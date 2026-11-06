@@ -30,7 +30,7 @@ export default function PaginaContato() {
         <dl className="mt-10 grid max-w-md gap-6 border-t border-linha pt-8 sm:grid-cols-2">
           <div><dt className="rotulo text-cinza">Atendimento</dt><dd className="mt-2">{SITE.horario}</dd></div>
           <div><dt className="rotulo text-cinza">E-mail</dt><dd className="mt-2 break-words">{SITE.email}</dd></div>
-          <div><dt className="rotulo text-cinza">Região</dt><dd className="mt-2">Santos, São Vicente, Praia Grande e Guarujá</dd></div>
+          <div><dt className="rotulo text-cinza">Região</dt><dd className="mt-2">Santos, São Vicente, Praia Grande, Guarujá, Mongaguá e Itanhaém</dd></div>
           <div><dt className="rotulo text-cinza">Registro</dt><dd className="mt-2">{SITE.creci}</dd></div>
         </dl>
       </div>

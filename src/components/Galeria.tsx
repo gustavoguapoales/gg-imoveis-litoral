@@ -35,7 +35,7 @@ export function Galeria({ imagens, titulo }: { imagens: string[]; titulo: string
           </span>
         </button>
         {imagens.slice(1, 3).map((src, k) => (
-          <button key={src} type="button" onClick={() => { setAtual(k + 1); setTela(true); }} className="relative hidden aspect-[16/10] overflow-hidden bg-nevoa md:block" aria-label={`Ver foto ${k + 2}`}>
+          <button key={src} type="button" onClick={() => { setAtual(k + 1); setTela(true); }} className={`relative hidden overflow-hidden bg-nevoa md:block ${total === 2 ? "md:row-span-2" : "aspect-[16/10]"}`} aria-label={`Ver foto ${k + 2}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={src} alt="" className="h-full w-full object-cover transition duration-500 hover:scale-[1.03]" />
             {k === 1 && total > 3 && (

@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { cidades, imoveis, tipos } from "@/data/imoveis";
 import { CardImovel } from "./CardImovel";
-import { FAIXAS_PRECO } from "./BuscaRapida";
+import { FAIXAS_PRECO, FINALIDADES } from "./BuscaRapida";
 
 const ORDENS = [
   { valor: "", rotulo: "Mais recentes" },
@@ -15,13 +15,14 @@ const ORDENS = [
 
 const sel = "w-full appearance-none rounded-sm border border-linha bg-papel px-3.5 py-2.5 text-sm text-tinta outline-none focus:border-mar cursor-pointer";
 
-type Filtros = { cidade: string; tipo: string; dorm: string; preco: string; vista: string; ordem: string };
-const SEM_FILTROS: Filtros = { cidade: "", tipo: "", dorm: "", preco: "", vista: "", ordem: "" };
+type Filtros = { finalidade: string; cidade: string; tipo: string; dorm: string; preco: string; vista: string; ordem: string };
+const SEM_FILTROS: Filtros = { finalidade: "", cidade: "", tipo: "", dorm: "", preco: "", vista: "", ordem: "" };
 
 export function ListaImoveis() {
   const router = useRouter();
   const params = useSearchParams();
   const f = {
+    finalidade: params.get("finalidade") ?? "",
     cidade: params.get("cidade") ?? "",
     tipo: params.get("tipo") ?? "",
     dorm: params.get("dorm") ?? "",
@@ -34,13 +35,17 @@ export function ListaImoveis() {
     const q = new URLSearchParams(params.toString());
     if (valor) q.set(chave, valor);
     else q.delete(chave);
+    if (chave === "finalidade") q.delete("preco");
     router.replace(`/imoveis/${q.size ? `?${q}` : ""}`, { scroll: false });
   }
 
   const lista = useMemo(() => {
     const cidadeNome = cidades.find((c) => c.slug === f.cidade)?.nome;
+    // Faixa de preço sem finalidade escolhida vale para imóveis à venda.
+    const finalidade = f.finalidade || (f.preco ? "venda" : "");
     const r = imoveis.filter(
       (i) =>
+        (!finalidade || i.finalidade === finalidade) &&
         (!cidadeNome || i.cidade === cidadeNome) &&
         (!f.tipo || i.tipo === f.tipo) &&
         (!f.dorm || i.dormitorios >= Number(f.dorm)) &&
@@ -51,11 +56,11 @@ export function ListaImoveis() {
     if (f.ordem === "maior") r.sort((a, b) => b.preco - a.preco);
     if (f.ordem === "praia") r.sort((a, b) => a.distanciaPraia - b.distanciaPraia);
     return r;
-  }, [f.cidade, f.tipo, f.dorm, f.preco, f.vista, f.ordem]);
+  }, [f.finalidade, f.cidade, f.tipo, f.dorm, f.preco, f.vista, f.ordem]);
 
   const limpar = () => router.replace("/imoveis/", { scroll: false });
 
-  const ativos = [f.cidade, f.tipo, f.dorm, f.preco, f.vista].filter(Boolean).length;
+  const ativos = [f.finalidade, f.cidade, f.tipo, f.dorm, f.preco, f.vista].filter(Boolean).length;
 
   return <ListaVisual f={f} lista={lista} ativos={ativos} definir={definir} limpar={limpar} />;
 }
@@ -75,6 +80,21 @@ function ListaVisual({ f, lista, ativos, definir, limpar }: {
   return (
     <>
       <div className="sticky top-20 z-20 -mx-[max(20px,env(safe-area-inset-left,0px))] border-b border-linha bg-papel/95 px-[max(20px,env(safe-area-inset-left,0px))] py-4 backdrop-blur md:-mx-10 md:px-10">
+        <div className="mb-3 flex w-fit overflow-hidden rounded-full border border-linha text-sm" role="radiogroup" aria-label="Finalidade">
+          {[{ valor: "", rotulo: "Todos" }, ...FINALIDADES].map((o) => (
+            <button
+              key={o.valor}
+              type="button"
+              role="radio"
+              aria-checked={f.finalidade === o.valor}
+              data-finalidade={o.valor}
+              onClick={() => definir("finalidade", o.valor)}
+              className={`px-5 py-2 font-medium transition ${f.finalidade === o.valor ? "bg-tinta text-white" : "text-tinta hover:bg-nevoa"}`}
+            >
+              {o.rotulo}
+            </button>
+          ))}
+        </div>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-[repeat(5,minmax(0,1fr))_auto]">
           <select aria-label="Cidade" className={sel} value={f.cidade} onChange={(e) => definir("cidade", e.target.value)}>
             <option value="">Todas as cidades</option>
@@ -89,7 +109,7 @@ function ListaVisual({ f, lista, ativos, definir, limpar }: {
             {[1, 2, 3, 4].map((n) => (<option key={n} value={n}>{n}+ dormitórios</option>))}
           </select>
           <select aria-label="Valor máximo" className={sel} value={f.preco} onChange={(e) => definir("preco", e.target.value)}>
-            {FAIXAS_PRECO.map((p) => (<option key={p.valor} value={p.valor}>{p.rotulo}</option>))}
+            {FAIXAS_PRECO[f.finalidade === "aluguel" ? "aluguel" : "venda"].map((p) => (<option key={p.valor} value={p.valor}>{p.rotulo}</option>))}
           </select>
           <select aria-label="Ordenar por" className={`${sel} max-md:col-span-2`} value={f.ordem} onChange={(e) => definir("ordem", e.target.value)}>
             {ORDENS.map((o) => (<option key={o.valor} value={o.valor}>{o.rotulo}</option>))}

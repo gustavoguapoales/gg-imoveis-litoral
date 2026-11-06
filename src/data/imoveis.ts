@@ -1,17 +1,19 @@
 // IMÓVEIS DE DEMONSTRAÇÃO — dados fictícios para o protótipo.
-// Substituir pelos imóveis reais (e fotos reais) antes da publicação.
+// Fotos geradas por IA, apenas ilustrativas. Substituir pelos imóveis e fotos reais antes da publicação.
 
-export type Cidade = "Santos" | "São Vicente" | "Praia Grande" | "Guarujá";
-export type Tipo = "Apartamento" | "Cobertura" | "Casa" | "Studio";
+export type Cidade = "Santos" | "São Vicente" | "Praia Grande" | "Guarujá" | "Mongaguá" | "Itanhaém";
+export type Tipo = "Apartamento" | "Cobertura" | "Casa" | "Studio" | "Sala comercial";
+export type Finalidade = "venda" | "aluguel";
 
 export interface Imovel {
   slug: string;
   ref: string;
   titulo: string;
   tipo: Tipo;
+  finalidade: Finalidade;
   cidade: Cidade;
   bairro: string;
-  preco: number;
+  preco: number; // venda: valor total · aluguel: valor mensal
   condominio?: number;
   iptu?: number;
   area: number;
@@ -29,7 +31,7 @@ export interface Imovel {
   imagens: string[];
 }
 
-const img = (n: string) => `/ilustracoes/${n}.svg`;
+const img = (n: string) => `/fotos/${n}.jpg`;
 
 export const imoveis: Imovel[] = [
   {
@@ -37,6 +39,7 @@ export const imoveis: Imovel[] = [
     ref: "GG-0142",
     titulo: "Apartamento frente mar no Gonzaga",
     tipo: "Apartamento",
+    finalidade: "venda",
     cidade: "Santos",
     bairro: "Gonzaga",
     preco: 1350000,
@@ -58,13 +61,14 @@ export const imoveis: Imovel[] = [
     ],
     caracteristicas: ["Vista mar", "Sacada", "Suíte com closet", "Cozinha planejada", "Dependência completa", "Sol da manhã", "Portaria 24h", "Andar alto"],
     lazer: ["Salão de festas", "Academia", "Bicicletário"],
-    imagens: [img("orla-dia"), img("sala-dia"), img("fachada-dia"), img("orla-noite")],
+    imagens: [img("sala-vista-mar"), img("suite"), img("cozinha"), img("santos")],
   },
   {
     slug: "cobertura-duplex-ponta-da-praia-santos",
     ref: "GG-0157",
     titulo: "Cobertura duplex na Ponta da Praia",
     tipo: "Cobertura",
+    finalidade: "venda",
     cidade: "Santos",
     bairro: "Ponta da Praia",
     preco: 2890000,
@@ -86,13 +90,14 @@ export const imoveis: Imovel[] = [
     ],
     caracteristicas: ["Vista mar", "Piscina privativa", "Terraço gourmet", "Churrasqueira", "Lavabo", "Depósito privativo", "Ar-condicionado"],
     lazer: ["Piscina", "Academia", "Salão de festas", "Playground"],
-    imagens: [img("piscina-entardecer"), img("sala-entardecer"), img("orla-amanhecer"), img("fachada-entardecer")],
+    imagens: [img("cobertura-piscina"), img("sala-vista-mar"), img("varanda-gourmet"), img("suite")],
   },
   {
     slug: "apartamento-praia-grande-canto-do-forte",
     ref: "GG-0163",
     titulo: "Apartamento com lazer completo no Canto do Forte",
     tipo: "Apartamento",
+    finalidade: "venda",
     cidade: "Praia Grande",
     bairro: "Canto do Forte",
     preco: 980000,
@@ -114,13 +119,14 @@ export const imoveis: Imovel[] = [
     ],
     caracteristicas: ["Varanda gourmet", "Vista mar lateral", "Duas suítes", "Cozinha americana", "Vagas cobertas", "Prédio novo"],
     lazer: ["Piscina adulto e infantil", "Academia", "Espaço gourmet", "Brinquedoteca", "Quadra"],
-    imagens: [img("piscina-dia"), img("sala-amanhecer"), img("praia-grande"), img("fachada-amanhecer")],
+    imagens: [img("lazer-condominio"), img("varanda-gourmet"), img("cozinha"), img("praia-grande")],
   },
   {
     slug: "casa-condominio-jardim-acapulco-guaruja",
     ref: "GG-0171",
     titulo: "Casa em condomínio no Jardim Acapulco",
     tipo: "Casa",
+    finalidade: "venda",
     cidade: "Guarujá",
     bairro: "Jardim Acapulco",
     preco: 6500000,
@@ -142,13 +148,14 @@ export const imoveis: Imovel[] = [
     ],
     caracteristicas: ["Cinco suítes", "Piscina aquecida", "Espaço gourmet", "Escritório", "Adega", "Casa de caseiro", "Energia solar"],
     lazer: ["Segurança 24h", "Quadra de tênis", "Área verde"],
-    imagens: [img("casa-dia"), img("casa-entardecer"), img("sala-noite"), img("piscina-dia")],
+    imagens: [img("casa-condominio"), img("sala-vista-mar"), img("suite"), img("guaruja")],
   },
   {
     slug: "apartamento-embare-santos",
     ref: "GG-0128",
     titulo: "Apartamento reformado no Embaré",
     tipo: "Apartamento",
+    finalidade: "venda",
     cidade: "Santos",
     bairro: "Embaré",
     preco: 640000,
@@ -169,13 +176,14 @@ export const imoveis: Imovel[] = [
     ],
     caracteristicas: ["Reformado", "Armários planejados", "Suíte", "Rua arborizada"],
     lazer: ["Salão de festas"],
-    imagens: [img("sala-dia"), img("fachada-dia"), img("orla-dia")],
+    imagens: [img("cozinha"), img("suite"), img("fachada")],
   },
   {
     slug: "apartamento-frente-mar-itarare-sao-vicente",
     ref: "GG-0134",
     titulo: "Frente mar na praia do Itararé",
     tipo: "Apartamento",
+    finalidade: "venda",
     cidade: "São Vicente",
     bairro: "Itararé",
     preco: 520000,
@@ -196,13 +204,14 @@ export const imoveis: Imovel[] = [
     ],
     caracteristicas: ["Vista mar", "Sacada", "Pronto para morar", "Bom para temporada"],
     lazer: ["Piscina", "Salão de festas"],
-    imagens: [img("sao-vicente"), img("sala-amanhecer"), img("orla-amanhecer")],
+    imagens: [img("sao-vicente"), img("sala-vista-mar"), img("suite")],
   },
   {
     slug: "apartamento-pitangueiras-guaruja",
     ref: "GG-0149",
     titulo: "Apartamento a uma quadra das Pitangueiras",
     tipo: "Apartamento",
+    finalidade: "venda",
     cidade: "Guarujá",
     bairro: "Pitangueiras",
     preco: 850000,
@@ -223,13 +232,14 @@ export const imoveis: Imovel[] = [
     ],
     caracteristicas: ["Sacada", "Suíte", "Ventilação cruzada", "Perto do comércio"],
     lazer: ["Piscina", "Churrasqueira"],
-    imagens: [img("guaruja"), img("sala-noite"), img("fachada-entardecer")],
+    imagens: [img("guaruja"), img("varanda-gourmet"), img("cozinha")],
   },
   {
     slug: "apartamento-guilhermina-praia-grande",
     ref: "GG-0166",
     titulo: "Apartamento na Guilhermina com varanda",
     tipo: "Apartamento",
+    finalidade: "venda",
     cidade: "Praia Grande",
     bairro: "Guilhermina",
     preco: 425000,
@@ -250,13 +260,14 @@ export const imoveis: Imovel[] = [
     ],
     caracteristicas: ["Varanda com churrasqueira", "Suíte", "Aceita financiamento"],
     lazer: ["Piscina", "Salão de festas"],
-    imagens: [img("orla-dia"), img("sala-dia"), img("piscina-dia")],
+    imagens: [img("fachada"), img("lazer-condominio"), img("cozinha")],
   },
   {
     slug: "studio-boqueirao-santos",
     ref: "GG-0175",
     titulo: "Studio mobiliado no Boqueirão",
     tipo: "Studio",
+    finalidade: "venda",
     cidade: "Santos",
     bairro: "Boqueirão",
     preco: 395000,
@@ -277,7 +288,172 @@ export const imoveis: Imovel[] = [
     ],
     caracteristicas: ["Mobiliado", "Prédio novo", "Bom para investimento"],
     lazer: ["Coworking", "Lavanderia", "Academia"],
-    imagens: [img("sala-entardecer"), img("fachada-amanhecer"), img("santos")],
+    imagens: [img("studio"), img("fachada"), img("santos")],
+  },
+  {
+    slug: "casa-piscina-praia-dos-sonhos-itanhaem",
+    ref: "GG-0181",
+    titulo: "Casa com piscina na Praia dos Sonhos",
+    tipo: "Casa",
+    finalidade: "venda",
+    cidade: "Itanhaém",
+    bairro: "Praia dos Sonhos",
+    preco: 690000,
+    iptu: 140,
+    area: 180,
+    dormitorios: 3,
+    suites: 1,
+    banheiros: 3,
+    vagas: 3,
+    distanciaPraia: 400,
+    vistaMar: false,
+    destaque: true,
+    resumo: "Casa ampla com piscina, churrasqueira e quintal, a poucas quadras do mar.",
+    descricao: [
+      "Casa térrea com piscina e área gourmet coberta, em rua tranquila da Praia dos Sonhos, um dos bairros mais procurados de Itanhaém.",
+      "Três dormitórios, sendo uma suíte, sala ampla integrada à cozinha e garagem para três carros. Ótima para morar ou passar as temporadas com a família.",
+    ],
+    caracteristicas: ["Piscina", "Churrasqueira", "Quintal", "Garagem para 3 carros", "Rua tranquila"],
+    lazer: [],
+    imagens: [img("casa-praia"), img("cozinha"), img("itanhaem")],
+  },
+  {
+    slug: "apartamento-aluguel-centro-itanhaem",
+    ref: "GG-0184",
+    titulo: "Apartamento para alugar perto da praia do Centro",
+    tipo: "Apartamento",
+    finalidade: "aluguel",
+    cidade: "Itanhaém",
+    bairro: "Centro",
+    preco: 2300,
+    condominio: 450,
+    iptu: 80,
+    area: 70,
+    dormitorios: 2,
+    suites: 1,
+    banheiros: 2,
+    vagas: 1,
+    distanciaPraia: 150,
+    vistaMar: true,
+    destaque: false,
+    resumo: "Locação anual, sacada com vista mar e perto do comércio do Centro.",
+    descricao: [
+      "Apartamento para locação anual a uma quadra e meia da praia do Centro de Itanhaém, com sacada e vista parcial para o mar.",
+      "Dois dormitórios, sendo uma suíte, cozinha com armários e uma vaga de garagem.",
+    ],
+    caracteristicas: ["Locação anual", "Sacada", "Vista mar parcial", "Armários na cozinha"],
+    lazer: ["Salão de festas"],
+    imagens: [img("itanhaem"), img("sala-vista-mar"), img("suite")],
+  },
+  {
+    slug: "apartamento-vera-cruz-mongagua",
+    ref: "GG-0187",
+    titulo: "Apartamento a 200 m da praia em Vera Cruz",
+    tipo: "Apartamento",
+    finalidade: "venda",
+    cidade: "Mongaguá",
+    bairro: "Vera Cruz",
+    preco: 330000,
+    condominio: 480,
+    iptu: 70,
+    area: 62,
+    dormitorios: 2,
+    suites: 0,
+    banheiros: 1,
+    vagas: 1,
+    distanciaPraia: 200,
+    vistaMar: false,
+    destaque: false,
+    resumo: "Ótimo custo-benefício, condomínio com piscina e perto da plataforma de pesca.",
+    descricao: [
+      "Apartamento de dois dormitórios em Vera Cruz, a 200 metros da praia e perto da plataforma de pesca de Mongaguá.",
+      "Condomínio com piscina e portaria. Aceita financiamento.",
+    ],
+    caracteristicas: ["Aceita financiamento", "Perto da praia", "Portaria"],
+    lazer: ["Piscina", "Churrasqueira"],
+    imagens: [img("mongagua"), img("studio"), img("fachada")],
+  },
+  {
+    slug: "casa-aluguel-agenor-de-campos-mongagua",
+    ref: "GG-0189",
+    titulo: "Casa para alugar no Agenor de Campos",
+    tipo: "Casa",
+    finalidade: "aluguel",
+    cidade: "Mongaguá",
+    bairro: "Agenor de Campos",
+    preco: 2800,
+    iptu: 90,
+    area: 140,
+    dormitorios: 3,
+    suites: 1,
+    banheiros: 2,
+    vagas: 2,
+    distanciaPraia: 300,
+    vistaMar: false,
+    destaque: false,
+    resumo: "Casa com edícula e churrasqueira, locação anual.",
+    descricao: [
+      "Casa para locação anual no Agenor de Campos, com varanda, churrasqueira e edícula nos fundos.",
+      "Três dormitórios, sendo uma suíte, e duas vagas de garagem.",
+    ],
+    caracteristicas: ["Locação anual", "Edícula", "Churrasqueira", "Varanda"],
+    lazer: [],
+    imagens: [img("casa-praia"), img("varanda-gourmet"), img("mongagua")],
+  },
+  {
+    slug: "sala-comercial-aluguel-gonzaga-santos",
+    ref: "GG-0192",
+    titulo: "Sala comercial no Gonzaga",
+    tipo: "Sala comercial",
+    finalidade: "aluguel",
+    cidade: "Santos",
+    bairro: "Gonzaga",
+    preco: 3900,
+    condominio: 950,
+    iptu: 210,
+    area: 48,
+    dormitorios: 0,
+    suites: 0,
+    banheiros: 1,
+    vagas: 1,
+    distanciaPraia: 500,
+    vistaMar: false,
+    destaque: true,
+    resumo: "Andar alto, pronta para uso, em prédio corporativo com recepção.",
+    descricao: [
+      "Sala comercial em prédio corporativo no Gonzaga, com recepção, controle de acesso e elevadores modernos.",
+      "Andar alto, ar-condicionado, piso elevado e copa. Uma vaga de garagem. Ideal para consultório ou escritório.",
+    ],
+    caracteristicas: ["Ar-condicionado", "Piso elevado", "Copa", "Recepção no prédio", "Controle de acesso"],
+    lazer: [],
+    imagens: [img("sala-comercial"), img("santos")],
+  },
+  {
+    slug: "sala-comercial-venda-centro-santos",
+    ref: "GG-0195",
+    titulo: "Loja de esquina no Centro de Santos",
+    tipo: "Sala comercial",
+    finalidade: "venda",
+    cidade: "Santos",
+    bairro: "Centro",
+    preco: 420000,
+    iptu: 260,
+    area: 65,
+    dormitorios: 0,
+    suites: 0,
+    banheiros: 1,
+    vagas: 0,
+    distanciaPraia: 3500,
+    vistaMar: false,
+    destaque: false,
+    resumo: "Ponto comercial de esquina com vitrine ampla e grande circulação.",
+    descricao: [
+      "Loja de esquina no Centro histórico de Santos, com vitrine de vidro, pé-direito alto e grande fluxo de pedestres.",
+      "Boa opção para investidor ou para quem quer abrir o próprio negócio.",
+    ],
+    caracteristicas: ["Esquina", "Vitrine ampla", "Pé-direito alto"],
+    lazer: [],
+    imagens: [img("loja"), img("sala-comercial")],
   },
 ];
 
@@ -314,8 +490,24 @@ export const cidades: { nome: Cidade; slug: string; imagem: string; coordenadas:
     texto: "Praias famosas, condomínios de alto padrão e o melhor do litoral para veraneio.",
     bairros: ["Pitangueiras", "Enseada", "Astúrias", "Tombo", "Jardim Acapulco", "Pernambuco"],
   },
+  {
+    nome: "Mongaguá",
+    slug: "mongagua",
+    imagem: img("mongagua"),
+    coordenadas: "24°05′S · 46°37′O",
+    texto: "Praias tranquilas, a famosa plataforma de pesca e preços acessíveis para morar ou veranear.",
+    bairros: ["Centro", "Vera Cruz", "Agenor de Campos", "Itaóca", "Flórida Mirim"],
+  },
+  {
+    nome: "Itanhaém",
+    slug: "itanhaem",
+    imagem: img("itanhaem"),
+    coordenadas: "24°11′S · 46°47′O",
+    texto: "Rio, mar e mata atlântica em uma das cidades mais antigas do país, com casas amplas e clima de interior.",
+    bairros: ["Centro", "Praia dos Sonhos", "Cibratel", "Suarão", "Belas Artes"],
+  },
 ];
 
-export const tipos: Tipo[] = ["Apartamento", "Cobertura", "Casa", "Studio"];
+export const tipos: Tipo[] = ["Apartamento", "Cobertura", "Casa", "Studio", "Sala comercial"];
 
 export const getImovel = (slug: string) => imoveis.find((i) => i.slug === slug);

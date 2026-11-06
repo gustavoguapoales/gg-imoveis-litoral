@@ -2,11 +2,11 @@ export const SITE = {
   nome: "GG Imóveis Litoral",
   url: "https://ggimoveislitoral.com.br", // provisório até a escolha do domínio
   descricao:
-    "Corretor de imóveis em Santos, São Vicente, Praia Grande e Guarujá. Apartamentos, coberturas e casas no litoral paulista, com atendimento direto pelo WhatsApp.",
+    "Corretor de imóveis no litoral paulista: Santos, São Vicente, Praia Grande, Guarujá, Mongaguá e Itanhaém. Compra, venda e aluguel, com atendimento direto pelo WhatsApp.",
   whatsapp: "5513997771730",
   whatsappExibicao: "(13) 99777-1730",
   email: "contato@ggimoveislitoral.com.br", // provisório
-  creci: "CRECI-SP (a informar)",
+  creci: "CRECI-SP 323268",
   horario: "Segunda a sábado, das 9h às 19h",
 };
 
@@ -17,3 +17,6 @@ export function linkWhatsApp(mensagem?: string) {
 
 export const formatarPreco = (valor: number) =>
   valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+
+export const precoImovel = (i: { preco: number; finalidade: "venda" | "aluguel" }) =>
+  i.finalidade === "aluguel" ? `${formatarPreco(i.preco)}/mês` : formatarPreco(i.preco);

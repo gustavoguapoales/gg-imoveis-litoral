@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
-/* Identidade GG Imóveis Litoral
-   Petróleo profundo (mar aberto) + latão (sol do fim de tarde) + névoa (orla). */
+/* Identidade GG Imóveis Litoral, a partir do logo:
+   azul-noite do texto, azul do mar, amarelo do sol. */
 @theme {
-  --color-tinta: #0e2b33;
-  --color-mar: #1f5560;
-  --color-mar-claro: #8fb3ae;
-  --color-nevoa: #e8eeec;
-  --color-papel: #f8f9f7;
-  --color-latao: #b8894a;
-  --color-latao-escuro: #8f6630;
+  --color-tinta: #04222b;
+  --color-mar: #0d4c8f;
+  --color-mar-claro: #9cc3e6;
+  --color-nevoa: #eaf0f4;
+  --color-papel: #f8fafb;
+  --color-latao: #ffc400;
+  --color-latao-escuro: #9a6a00;
   --color-areia: #e6dccb;
-  --color-cinza: #5b6b6e;
-  --color-linha: #d5dedc;
+  --color-cinza: #56666d;
+  --color-linha: #d6e0e6;
   --color-whats: #1f9d55;
 
   --font-display: var(--font-bodoni), "Didot", "Times New Roman", serif;

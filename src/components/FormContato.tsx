@@ -51,6 +51,7 @@ export function FormContato({ imovelRef }: { imovelRef?: string }) {
         Tenho interesse em
         <select id="ct-interesse" name="interesse" className={input} defaultValue="Comprar um imóvel">
           <option>Comprar um imóvel</option>
+          <option>Alugar um imóvel</option>
           <option>Vender meu imóvel</option>
           <option>Avaliar meu imóvel</option>
           <option>Investir no litoral</option>
@@ -64,6 +65,8 @@ export function FormContato({ imovelRef }: { imovelRef?: string }) {
           <option>São Vicente</option>
           <option>Praia Grande</option>
           <option>Guarujá</option>
+          <option>Mongaguá</option>
+          <option>Itanhaém</option>
         </select>
       </label>
       <label className="flex flex-col gap-2 text-sm sm:col-span-2" htmlFor="ct-mensagem">

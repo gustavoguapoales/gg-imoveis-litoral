@@ -9,9 +9,10 @@ import { linkWhatsApp } from "@/lib/site";
 
 const LINKS = [
   { href: "/imoveis/", rotulo: "Imóveis" },
+  { href: "/anunciar/", rotulo: "Anunciar imóvel" },
+  { href: "/avaliacao/", rotulo: "Avaliação" },
+  { href: "/drone/", rotulo: "Fotos com drone" },
   { href: "/#regioes", rotulo: "Regiões" },
-  { href: "/#atuacao", rotulo: "Atuação" },
-  { href: "/#vender", rotulo: "Vender meu imóvel" },
   { href: "/contato/", rotulo: "Contato" },
 ];
 
@@ -40,7 +41,7 @@ export function Cabecalho() {
           <Logo claro={transparente} />
         </Link>
 
-        <nav className={`hidden items-center gap-8 lg:flex ${transparente ? "text-white" : "text-tinta"}`} aria-label="Principal">
+        <nav className={`hidden items-center gap-7 xl:flex ${transparente ? "text-white" : "text-tinta"}`} aria-label="Principal">
           {LINKS.map((l) => (
             <Link key={l.href} href={l.href} className="text-[0.92rem] opacity-85 transition hover:opacity-100 hover:text-latao">
               {l.rotulo}
@@ -59,7 +60,7 @@ export function Cabecalho() {
           </a>
           <button
             type="button"
-            className={`grid h-11 w-11 place-items-center lg:hidden ${transparente ? "text-white" : "text-tinta"}`}
+            className={`grid h-11 w-11 place-items-center xl:hidden ${transparente ? "text-white" : "text-tinta"}`}
             aria-label={aberto ? "Fechar menu" : "Abrir menu"}
             aria-expanded={aberto}
             onClick={() => setAberto((v) => !v)}
@@ -70,7 +71,7 @@ export function Cabecalho() {
       </div>
 
       {aberto && (
-        <nav className="border-t border-linha bg-papel lg:hidden" aria-label="Menu móvel">
+        <nav className="border-t border-linha bg-papel xl:hidden" aria-label="Menu móvel">
           <ul className="container-site flex flex-col py-4">
             {LINKS.map((l) => (
               <li key={l.href}>

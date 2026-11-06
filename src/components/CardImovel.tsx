@@ -1,23 +1,33 @@
 import Link from "next/link";
 import type { Imovel } from "@/data/imoveis";
-import { formatarPreco } from "@/lib/site";
+import { precoImovel } from "@/lib/site";
 import { IconeArea, IconeBanho, IconeCama, IconeSeta, IconeSuite, IconeVaga } from "./Icones";
 
 export function distanciaTexto(m: number) {
-  return m <= 50 ? "Frente mar" : `${m} m da praia`;
+  if (m <= 50) return "Frente mar";
+  if (m >= 1000) return `${(m / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} km da praia`;
+  return `${m} m da praia`;
 }
 
+export const rotuloFinalidade = (i: Imovel) => (i.finalidade === "aluguel" ? `${i.tipo} para alugar` : `${i.tipo} à venda`);
+
 export function Especificacoes({ imovel, compacto = false }: { imovel: Imovel; compacto?: boolean }) {
+  const comercial = imovel.tipo === "Sala comercial";
   const itens = [
     { Icone: IconeArea, valor: `${imovel.area} m²`, rotulo: "Área útil" },
-    { Icone: IconeCama, valor: imovel.dormitorios, rotulo: imovel.dormitorios === 1 ? "Dormitório" : "Dormitórios" },
-    { Icone: IconeSuite, valor: imovel.suites, rotulo: imovel.suites === 1 ? "Suíte" : "Suítes" },
+    ...(comercial
+      ? []
+      : [
+          { Icone: IconeCama, valor: imovel.dormitorios, rotulo: imovel.dormitorios === 1 ? "Dormitório" : "Dormitórios" },
+          { Icone: IconeSuite, valor: imovel.suites, rotulo: imovel.suites === 1 ? "Suíte" : "Suítes" },
+        ]),
     { Icone: IconeBanho, valor: imovel.banheiros, rotulo: imovel.banheiros === 1 ? "Banheiro" : "Banheiros" },
     { Icone: IconeVaga, valor: imovel.vagas, rotulo: imovel.vagas === 1 ? "Vaga" : "Vagas" },
   ];
+  const colunas = itens.length === 5 ? "grid-cols-5" : "grid-cols-3";
   if (compacto) {
     return (
-      <ul className="grid grid-cols-5 border-y border-linha py-3 text-tinta">
+      <ul className={`grid ${colunas} border-y border-linha py-3 text-tinta`}>
         {itens.map(({ Icone, valor, rotulo }) => (
           <li key={rotulo} className="flex flex-col items-center gap-1 text-center" title={rotulo}>
             <Icone className="text-mar" />
@@ -29,7 +39,7 @@ export function Especificacoes({ imovel, compacto = false }: { imovel: Imovel; c
     );
   }
   return (
-    <ul className="grid grid-cols-2 gap-px overflow-hidden rounded-sm border border-linha bg-linha sm:grid-cols-5">
+    <ul className={`grid grid-cols-2 gap-px overflow-hidden rounded-sm border border-linha bg-linha ${itens.length === 5 ? "sm:grid-cols-5" : "sm:grid-cols-3"}`}>
       {itens.map(({ Icone, valor, rotulo }) => (
         <li key={rotulo} className="flex items-center gap-3 bg-papel px-4 py-4 max-sm:last:col-span-2">
           <Icone className="shrink-0 text-mar" width={22} height={22} />
@@ -49,6 +59,7 @@ export function CardImovel({ imovel }: { imovel: Imovel }) {
       className="group flex flex-col"
       data-cidade={imovel.cidade}
       data-tipo={imovel.tipo}
+      data-finalidade={imovel.finalidade}
       data-dorm={imovel.dormitorios}
       data-preco={imovel.preco}
       data-vista={imovel.vistaMar ? "1" : ""}
@@ -62,9 +73,14 @@ export function CardImovel({ imovel }: { imovel: Imovel }) {
           loading="lazy"
           className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-[1.04]"
         />
-        <span className="absolute left-3 top-3 rounded-full bg-papel/92 px-3 py-1 text-xs font-medium text-tinta backdrop-blur">
-          {imovel.vistaMar ? "Vista mar · " : ""}
-          {distanciaTexto(imovel.distanciaPraia)}
+        <span className="absolute left-3 top-3 flex gap-1.5">
+          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${imovel.finalidade === "aluguel" ? "bg-latao text-tinta" : "bg-tinta text-white"}`}>
+            {imovel.finalidade === "aluguel" ? "Aluguel" : "Venda"}
+          </span>
+          <span className="rounded-full bg-papel/92 px-3 py-1 text-xs font-medium text-tinta backdrop-blur">
+            {imovel.vistaMar ? "Vista mar · " : ""}
+            {distanciaTexto(imovel.distanciaPraia)}
+          </span>
         </span>
         <span className="rotulo absolute bottom-3 right-3 rounded-sm bg-tinta/70 px-2 py-1 !text-[0.65rem] text-white backdrop-blur">
           Ref {imovel.ref}
@@ -84,8 +100,8 @@ export function CardImovel({ imovel }: { imovel: Imovel }) {
         </div>
         <div className="mt-4 flex items-end justify-between gap-4">
           <div>
-            <p className="text-xs text-cinza">{imovel.tipo} à venda</p>
-            <p className="text-xl font-semibold tabular-nums">{formatarPreco(imovel.preco)}</p>
+            <p className="text-xs text-cinza">{rotuloFinalidade(imovel)}</p>
+            <p className="text-xl font-semibold tabular-nums">{precoImovel(imovel)}</p>
           </div>
           <Link
             href={`/imoveis/${imovel.slug}/`}

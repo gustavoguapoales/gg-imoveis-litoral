@@ -14,22 +14,27 @@ const rotas = [
   { rota: "inicio", url: "/" },
   { rota: "imoveis", url: "/imoveis/" },
   { rota: "contato", url: "/contato/" },
+  { rota: "anunciar", url: "/anunciar/" },
+  { rota: "avaliacao", url: "/avaliacao/" },
+  { rota: "drone", url: "/drone/" },
   ...imoveis.map((i) => ({ rota: i.slug, url: `/imoveis/${i.slug}/` })),
 ];
 
 function reescrever(html, rota) {
   return html
     .replace(/<script[\s\S]*?<\/script>/g, "")
-    .replace(/src="\/ilustracoes\/([\w-]+)\.svg"/g, 'data-img="$1"')
+    .replace(/src="\/fotos\/([\w-]+)\.jpg"/g, 'data-img="$1"')
+    .replace(/src="\/marca\/([\w-]+)\.png"/g, 'data-img="marca-$1"')
     .replace(/href="\/imoveis\/\?cidade=([\w-]+)"/g, 'href="#imoveis-$1"')
     .replace(/href="\/imoveis\/([\w-]+)\/"/g, 'href="#$1"')
     .replace(/href="\/imoveis\/"/g, 'href="#imoveis"')
-    .replace(/href="\/contato\/"/g, 'href="#contato"')
+    .replace(/href="\/(contato|anunciar|avaliacao|drone)\/"/g, 'href="#$1"')
     .replace(/href="\/#([\w-]+)"/g, 'href="#$1"')
     .replace(/href="\/"/g, 'href="#inicio"')
     .replace(/href="#interesse"/g, 'data-rolar="interesse" role="button" tabindex="0" style="cursor:pointer"')
     .replace(/id="interesse"/g, 'data-ancora="interesse"')
-    .replace(/(id|for)="ct-/g, `$1="ct-${rota}-`);
+    .replace(/(id|for)="ct-/g, `$1="ct-${rota}-`)
+    .replace(/(id|for)="(anunciar|avaliacao|drone)-/g, `$1="$2-${rota}-`);
 }
 
 const navegador = await chromium.launch();
@@ -53,11 +58,19 @@ const css = readdirSync(pastaCss).filter((f) => f.endsWith(".css"))
   .map((f) => readFileSync(new URL(f, pastaCss), "utf8")).join("\n")
   .replace(/@font-face\{[^}]*\}/g, "");
 
+// Fotos em versão leve (previa/fotos-leves/, se existir) para a prévia não ficar pesada.
 const imagens = {};
-for (const f of readdirSync(new URL("public/ilustracoes/", RAIZ))) {
-  imagens[f.replace(".svg", "")] = "data:image/svg+xml;base64," + readFileSync(new URL(`public/ilustracoes/${f}`, RAIZ)).toString("base64");
+const pastaLeve = new URL("previa/fotos-leves/", RAIZ);
+let leves = [];
+try { leves = readdirSync(pastaLeve); } catch {}
+for (const f of readdirSync(new URL("public/fotos/", RAIZ))) {
+  const arq = leves.includes(f) ? new URL(f, pastaLeve) : new URL(`public/fotos/${f}`, RAIZ);
+  imagens[f.replace(".jpg", "")] = "data:image/jpeg;base64," + readFileSync(arq).toString("base64");
 }
-const dados = Object.fromEntries(imoveis.map((i) => [i.slug, { ref: i.ref, titulo: i.titulo, imagens: i.imagens.map((s) => s.match(/([\w-]+)\.svg/)[1]) }]));
+for (const f of readdirSync(new URL("public/marca/", RAIZ))) {
+  imagens["marca-" + f.replace(".png", "")] = "data:image/png;base64," + readFileSync(new URL(`public/marca/${f}`, RAIZ)).toString("base64");
+}
+const dados = Object.fromEntries(imoveis.map((i) => [i.slug, { ref: i.ref, titulo: i.titulo, imagens: i.imagens.map((s) => s.match(/([\w-]+)\.jpg/)[1]) }]));
 const nomesCidades = Object.fromEntries(cidades.map((c) => [c.slug, c.nome]));
 
 const script = readFileSync(new URL("scripts/previa-runtime.js", RAIZ), "utf8");
@@ -73,7 +86,8 @@ ${css}
 body{background:#f8f9f7;color:#0e2b33;font-size:16px;margin:0}
 header.previa-transp{background:transparent!important;box-shadow:none!important;backdrop-filter:none!important}
 header.previa-transp .text-tinta{color:#fff!important}
-header.previa-transp .bg-tinta\\/25{background:rgba(255,255,255,.4)!important}
+header.previa-transp .logo-escuro{display:none!important}
+header.previa-transp .logo-claro{display:block!important}
 .previa-aviso{position:fixed;left:max(16px,env(safe-area-inset-left));bottom:max(16px,env(safe-area-inset-bottom));z-index:35;background:#0e2b33;color:#fff;font:500 12px var(--font-albert);padding:8px 14px;border-radius:999px;opacity:.9;pointer-events:none;white-space:nowrap}
 .previa-caixa{position:fixed;inset:0;z-index:60;background:rgba(7,20,25,.96);display:flex;flex-direction:column}
 .previa-caixa img{max-width:100%;max-height:100%;object-fit:contain}

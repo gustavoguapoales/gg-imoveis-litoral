@@ -12,13 +12,13 @@ const plex = IBM_Plex_Mono({ variable: "--font-plex-mono", subsets: ["latin"], w
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
-  title: { default: `${SITE.nome} | Imóveis em Santos, São Vicente, Praia Grande e Guarujá`, template: `%s | ${SITE.nome}` },
+  title: { default: `${SITE.nome} | Imóveis para comprar e alugar no litoral paulista`, template: `%s | ${SITE.nome}` },
   description: SITE.descricao,
   openGraph: { type: "website", locale: "pt_BR", siteName: SITE.nome },
   alternates: { canonical: "/" },
 };
 
-export const viewport: Viewport = { themeColor: "#0e2b33" };
+export const viewport: Viewport = { themeColor: "#04222b" };
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -26,7 +26,7 @@ const jsonLd = {
   name: SITE.nome,
   url: SITE.url,
   telephone: `+${SITE.whatsapp}`,
-  areaServed: ["Santos", "São Vicente", "Praia Grande", "Guarujá"].map((c) => ({ "@type": "City", name: c })),
+  areaServed: ["Santos", "São Vicente", "Praia Grande", "Guarujá", "Mongaguá", "Itanhaém"].map((c) => ({ "@type": "City", name: c })),
   address: { "@type": "PostalAddress", addressRegion: "SP", addressCountry: "BR" },
 };
 

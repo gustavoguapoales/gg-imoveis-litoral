@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CardImovel, distanciaTexto, Especificacoes } from "@/components/CardImovel";
+import { CardImovel, distanciaTexto, Especificacoes, rotuloFinalidade } from "@/components/CardImovel";
 import { FormContato } from "@/components/FormContato";
 import { Galeria } from "@/components/Galeria";
 import { IconeCheck, IconeOnda, IconePino, IconeWhatsApp } from "@/components/Icones";
 import { getImovel, imoveis } from "@/data/imoveis";
-import { formatarPreco, linkWhatsApp, SITE } from "@/lib/site";
+import { formatarPreco, linkWhatsApp, precoImovel, SITE } from "@/lib/site";
 
 export function generateStaticParams() {
   return imoveis.map((i) => ({ slug: i.slug }));
@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: PageProps<"/imoveis/[slug]">)
   if (!i) return {};
   return {
     title: `${i.titulo}, ${i.bairro}, ${i.cidade}`,
-    description: `${i.tipo} à venda em ${i.bairro}, ${i.cidade}: ${i.area} m², ${i.dormitorios} dormitórios, ${i.vagas} vagas. ${formatarPreco(i.preco)}. ${i.resumo}`,
+    description: `${rotuloFinalidade(i)} em ${i.bairro}, ${i.cidade}: ${i.area} m², ${i.vagas} vagas. ${precoImovel(i)}. ${i.resumo}`,
     alternates: { canonical: `/imoveis/${i.slug}/` },
     openGraph: { images: [i.imagens[0]] },
   };
@@ -37,7 +37,7 @@ export default async function PaginaImovel({ params }: PageProps<"/imoveis/[slug
     "@type": "RealEstateListing",
     name: i.titulo,
     url: `${SITE.url}/imoveis/${i.slug}/`,
-    offers: { "@type": "Offer", price: i.preco, priceCurrency: "BRL" },
+    offers: { "@type": "Offer", price: i.preco, priceCurrency: "BRL", businessFunction: i.finalidade === "aluguel" ? "LeaseOut" : "Sell" },
     address: { "@type": "PostalAddress", addressLocality: i.cidade, addressRegion: "SP", addressCountry: "BR" },
   };
 
@@ -56,7 +56,7 @@ export default async function PaginaImovel({ params }: PageProps<"/imoveis/[slug
 
       <div className="container-site grid gap-14 py-12 lg:grid-cols-[1fr_380px] lg:py-16">
         <div className="min-w-0">
-          <p className="rotulo text-latao-escuro">{i.tipo} à venda · Ref {i.ref}</p>
+          <p className="rotulo text-latao-escuro">{rotuloFinalidade(i)} · Ref {i.ref}</p>
           <h1 className="mt-3 font-display text-4xl leading-tight md:text-5xl">{i.titulo}</h1>
           <p className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-cinza">
             <span className="flex items-center gap-1.5"><IconePino /> {i.bairro}, {i.cidade} · SP</span>
@@ -65,8 +65,8 @@ export default async function PaginaImovel({ params }: PageProps<"/imoveis/[slug
 
           <div className="mt-6 flex items-center justify-between gap-4 border-y border-linha py-5 lg:hidden">
             <div>
-              <p className="text-xs text-cinza">Valor de venda</p>
-              <p className="text-2xl font-semibold tabular-nums">{formatarPreco(i.preco)}</p>
+              <p className="text-xs text-cinza">{i.finalidade === "aluguel" ? "Aluguel mensal" : "Valor de venda"}</p>
+              <p className="text-2xl font-semibold tabular-nums">{precoImovel(i)}</p>
             </div>
             <a href={linkWhatsApp(msg)} target="_blank" rel="noopener" className="flex items-center gap-2 rounded-full bg-whats px-5 py-3 text-sm font-medium text-white">
               <IconeWhatsApp width={17} height={17} /> Consultar
@@ -82,19 +82,19 @@ export default async function PaginaImovel({ params }: PageProps<"/imoveis/[slug
             </div>
           </section>
 
-          <section className="mt-12 grid gap-10 sm:grid-cols-2">
+          <section className={`mt-12 grid gap-10 ${i.lazer.length ? "sm:grid-cols-2" : ""}`}>
             <div>
               <h2 className="font-display text-2xl">Características</h2>
               <ul className="mt-5 space-y-2.5">
                 {i.caracteristicas.map((c) => (<li key={c} className="flex items-center gap-3"><IconeCheck className="text-mar" /> {c}</li>))}
               </ul>
             </div>
-            <div>
+            {i.lazer.length > 0 && (<div>
               <h2 className="font-display text-2xl">Lazer do condomínio</h2>
               <ul className="mt-5 space-y-2.5">
                 {i.lazer.map((c) => (<li key={c} className="flex items-center gap-3"><IconeCheck className="text-mar" /> {c}</li>))}
               </ul>
-            </div>
+            </div>)}
           </section>
 
           <section className="mt-12">
@@ -119,12 +119,13 @@ export default async function PaginaImovel({ params }: PageProps<"/imoveis/[slug
 
         <aside className="lg:sticky lg:top-28 lg:self-start">
           <div className="rounded-sm border border-linha bg-papel p-7 shadow-[0_24px_50px_-30px_rgba(14,43,51,0.35)]">
-            <p className="text-sm text-cinza">Valor de venda</p>
-            <p className="mt-1 text-4xl font-semibold tabular-nums">{formatarPreco(i.preco)}</p>
+            <p className="text-sm text-cinza">{i.finalidade === "aluguel" ? "Aluguel mensal" : "Valor de venda"}</p>
+            <p className="mt-1 text-4xl font-semibold tabular-nums">{precoImovel(i)}</p>
             <dl className="mt-6 space-y-2 border-t border-linha pt-5 text-sm">
               {i.condominio && (<div className="flex justify-between"><dt className="text-cinza">Condomínio</dt><dd className="tabular-nums">{formatarPreco(i.condominio)}/mês</dd></div>)}
               {i.iptu && (<div className="flex justify-between"><dt className="text-cinza">IPTU</dt><dd className="tabular-nums">{formatarPreco(i.iptu)}/mês</dd></div>)}
-              <div className="flex justify-between"><dt className="text-cinza">Valor por m²</dt><dd className="tabular-nums">{formatarPreco(Math.round(i.preco / i.area))}</dd></div>
+              {i.finalidade === "venda" && (<div className="flex justify-between"><dt className="text-cinza">Valor por m²</dt><dd className="tabular-nums">{formatarPreco(Math.round(i.preco / i.area))}</dd></div>)}
+              {i.finalidade === "aluguel" && (<div className="flex justify-between border-t border-linha pt-2 font-medium"><dt>Total mensal</dt><dd className="tabular-nums">{formatarPreco(i.preco + (i.condominio ?? 0) + (i.iptu ?? 0))}</dd></div>)}
             </dl>
             <a href={linkWhatsApp(msg)} target="_blank" rel="noopener" className="mt-7 flex items-center justify-center gap-2 rounded-full bg-whats py-4 font-medium text-white transition hover:brightness-110">
               <IconeWhatsApp /> Consultar pelo WhatsApp

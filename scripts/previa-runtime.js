@@ -7,6 +7,25 @@
 
   $$("[data-img]").forEach((img) => (img.src = IMG[img.dataset.img]));
 
+  const FAIXAS = {
+    venda: [["", "Qualquer valor"], ["500000", "Até R$ 500 mil"], ["1000000", "Até R$ 1 milhão"], ["2000000", "Até R$ 2 milhões"], ["5000000", "Até R$ 5 milhões"]],
+    aluguel: [["", "Qualquer valor"], ["2000", "Até R$ 2 mil/mês"], ["3000", "Até R$ 3 mil/mês"], ["5000", "Até R$ 5 mil/mês"], ["10000", "Até R$ 10 mil/mês"]],
+  };
+  const trocarFaixas = (select, finalidade) => {
+    select.innerHTML = FAIXAS[finalidade === "aluguel" ? "aluguel" : "venda"].map(([v, r]) => `<option value="${v}">${r}</option>`).join("");
+  };
+  // Grupo Comprar/Alugar: reaproveita as classes dos botões ativo e inativo renderizados pelo site.
+  function grupoFinalidade(grupo) {
+    const botoes = $$("button[data-finalidade]", grupo);
+    const cAtivo = botoes.find((b) => b.getAttribute("aria-checked") === "true").className;
+    const cInativo = botoes.find((b) => b.getAttribute("aria-checked") !== "true").className;
+    return {
+      botoes,
+      valor: () => botoes.find((b) => b.getAttribute("aria-checked") === "true").dataset.finalidade,
+      marcar(v) { botoes.forEach((b) => { const on = b.dataset.finalidade === v; b.setAttribute("aria-checked", String(on)); b.className = on ? cAtivo : cInativo; }); },
+    };
+  }
+
   const cab = $("header");
   const secoes = $$("[data-rota]");
   let atual = "inicio";
@@ -57,6 +76,7 @@
   // Filtros do catálogo
   const secImoveis = $('[data-rota="imoveis"]');
   const sel = (rotulo) => $(`select[aria-label="${rotulo}"]`, secImoveis);
+  const fin = grupoFinalidade($('[role="radiogroup"]', secImoveis));
   const campos = { cidade: sel("Cidade"), tipo: sel("Tipo de imóvel"), dorm: sel("Dormitórios"), preco: sel("Valor máximo"), ordem: sel("Ordenar por"), vista: $('input[type="checkbox"]', secImoveis) };
   const cards = $$("article[data-cidade]", secImoveis);
   const grade = cards[0].parentElement;
@@ -74,15 +94,18 @@
 
   function aplicarFiltros(novos) {
     if (novos) {
+      fin.marcar(novos.finalidade || "");
+      trocarFaixas(campos.preco, novos.finalidade);
       for (const k in campos) {
         if (k === "vista") campos.vista.checked = !!novos.vista;
         else campos[k].value = novos[k] || "";
       }
     }
-    const f = { cidade: CIDADES[campos.cidade.value], tipo: campos.tipo.value, dorm: +campos.dorm.value || 0, preco: +campos.preco.value || Infinity, vista: campos.vista.checked, ordem: campos.ordem.value };
+    const finalidade = fin.valor() || (campos.preco.value ? "venda" : "");
+    const f = { finalidade, cidade: CIDADES[campos.cidade.value], tipo: campos.tipo.value, dorm: +campos.dorm.value || 0, preco: +campos.preco.value || Infinity, vista: campos.vista.checked, ordem: campos.ordem.value };
     const visiveis = cards.filter((c) => {
       const d = c.dataset;
-      const ok = (!f.cidade || d.cidade === f.cidade) && (!f.tipo || d.tipo === f.tipo) && +d.dorm >= f.dorm && +d.preco <= f.preco && (!f.vista || d.vista === "1");
+      const ok = (!f.finalidade || d.finalidade === f.finalidade) && (!f.cidade || d.cidade === f.cidade) && (!f.tipo || d.tipo === f.tipo) && +d.dorm >= f.dorm && +d.preco <= f.preco && (!f.vista || d.vista === "1");
       c.hidden = !ok;
       return ok;
     });
@@ -95,19 +118,26 @@
     contador.innerHTML = `<strong class="font-semibold text-tinta">${n}</strong> ${n === 1 ? "imóvel encontrado" : "imóveis encontrados"}`;
     grade.hidden = n === 0;
     vazio.hidden = n !== 0;
-    limpar.hidden = !(f.cidade || f.tipo || f.dorm || f.preco !== Infinity || f.vista);
+    limpar.hidden = !(fin.valor() || f.cidade || f.tipo || f.dorm || f.preco !== Infinity || f.vista);
   }
   Object.values(campos).forEach((c) => c.addEventListener("change", () => aplicarFiltros()));
+  fin.botoes.forEach((b) => b.addEventListener("click", () => {
+    fin.marcar(b.dataset.finalidade);
+    trocarFaixas(campos.preco, b.dataset.finalidade);
+    aplicarFiltros();
+  }));
   limpar.addEventListener("click", () => aplicarFiltros({}));
   aplicarFiltros();
 
   // Busca da página inicial
   const busca = $('form[role="search"]');
   if (busca) {
+    const finBusca = grupoFinalidade($('[role="radiogroup"]', busca));
+    finBusca.botoes.forEach((b) => b.addEventListener("click", () => { finBusca.marcar(b.dataset.finalidade); trocarFaixas($("#busca-preco"), b.dataset.finalidade); }));
     busca.addEventListener("submit", (e) => {
       e.preventDefault();
       const v = (id) => $("#" + id).value;
-      const filtros = { cidade: v("busca-cidade"), tipo: v("busca-tipo"), dorm: v("busca-dorm"), preco: v("busca-preco") };
+      const filtros = { finalidade: finBusca.valor(), cidade: v("busca-cidade"), tipo: v("busca-tipo"), dorm: v("busca-dorm"), preco: v("busca-preco") };
       if (location.hash === "#imoveis") irPara(); else location.hash = "imoveis";
       aplicarFiltros(filtros);
     });
@@ -165,7 +195,24 @@
   });
 
   // Formulários de interesse
-  $$("form:not([role])").forEach((form) => {
+  $$("form[data-cabecalho]").forEach((form) => {
+    const aviso = document.createElement("div");
+    aviso.className = "sm:col-span-2";
+    form.querySelector("button[type=submit]").parentElement.before(aviso);
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const campos = $$("[data-rotulo]", form);
+      const faltando = campos.filter((c) => c.required && !c.value.trim());
+      if (faltando.length) {
+        aviso.innerHTML = `<p class="text-sm text-red-700" role="alert">Preencha: ${faltando.map((c) => c.dataset.rotulo.toLowerCase()).join(", ")}.</p>`;
+        return;
+      }
+      const linhas = [form.dataset.cabecalho, ...campos.filter((c) => c.value.trim()).map((c) => `${c.dataset.rotulo}: ${c.value.trim()}`)];
+      aviso.innerHTML = `<div class="previa-ok">Mensagem pronta. <a class="font-semibold text-whats underline" target="_blank" rel="noopener" href="${linkWhats(linhas.join("\n"))}">Toque aqui para abrir no WhatsApp</a> e enviar.</div>`;
+    });
+  });
+
+  $$("form:not([role]):not([data-cabecalho])").forEach((form) => {
     const sec = form.closest("[data-rota]");
     const ref = DADOS[sec.dataset.rota]?.ref;
     const aviso = document.createElement("div");
