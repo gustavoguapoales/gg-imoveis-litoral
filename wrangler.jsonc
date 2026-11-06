@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Site estático (pasta out/ gerada por `npm run build`) servido pela Cloudflare.
+  "name": "gg-imoveis-litoral",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./out",
+    "not_found_handling": "404-page"
+  }
+}

@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GG Imóveis Litoral
 
-## Getting Started
+Site da GG Imóveis Litoral: compra, venda e aluguel de imóveis em Santos, São Vicente, Praia Grande, Guarujá, Mongaguá e Itanhaém.
 
-First, run the development server:
+## Stack
+- Next.js (App Router) + TypeScript + Tailwind CSS
+- Exportação estática (`out/`) publicada na Cloudflare (Workers com arquivos estáticos, `wrangler.jsonc`)
 
+## Comandos
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # desenvolvimento em http://localhost:3000
+npm run build   # gera o site estático em out/
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Publicação na Cloudflare
+Cloudflare → Workers & Pages → Criar → Importar repositório do GitHub:
+- Comando de build: `npm run build`
+- Comando de deploy: `npx wrangler deploy`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Cada push na branch `main` publica o site automaticamente.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Onde editar
+- `src/lib/site.ts`: WhatsApp, e-mail, CRECI, horário
+- `src/data/imoveis.ts`: imóveis e cidades (dados de demonstração)
+- `src/lib/chatbot-dados.ts`: respostas do assistente virtual
+- `public/fotos/`: fotos (ilustrativas, geradas por IA)
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Painel do corretor (protótipo)
+`/painel` é um protótipo com dados fictícios (`src/data/privado-demo.ts`).
+Dados reais de proprietários **nunca** devem entrar neste repositório: na versão final
+eles ficam no banco Cloudflare D1, com acesso protegido pela Cloudflare Access.
