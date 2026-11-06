@@ -6,14 +6,29 @@
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 
   $$("[data-img]").forEach((img) => (img.src = IMG[img.dataset.img]));
+  $$("video[data-video]").forEach((v) => { v.poster = IMG["video-" + v.dataset.poster] || ""; v.src = VIDEOS[v.dataset.video]; });
 
-  const FAIXAS = {
-    venda: [["", "Qualquer valor"], ["500000", "Até R$ 500 mil"], ["1000000", "Até R$ 1 milhão"], ["2000000", "Até R$ 2 milhões"], ["5000000", "Até R$ 5 milhões"]],
-    aluguel: [["", "Qualquer valor"], ["2000", "Até R$ 2 mil/mês"], ["3000", "Até R$ 3 mil/mês"], ["5000", "Até R$ 5 mil/mês"], ["10000", "Até R$ 10 mil/mês"]],
+  // Campo de valor livre com máscara de reais.
+  const digitos = (el) => el.value.replace(/\D/g, "").replace(/^0+/, "").slice(0, 11);
+  const formatar = (d) => (d ? "R$ " + Number(d).toLocaleString("pt-BR") : "");
+  $$("input[data-valor]").forEach((el) => el.addEventListener("input", () => { el.value = formatar(digitos(el)); }));
+  const exemplo = (fin) => (fin === "aluguel" ? "Ex.: R$ 3.000" : "Ex.: R$ 500.000");
+  const trocarFaixas = (input, finalidade) => {
+    input.value = "";
+    input.placeholder = input.id === "filtro-preco" ? `Valor máximo (${exemplo(finalidade).replace("Ex.: ", "ex. ")})` : exemplo(finalidade);
   };
-  const trocarFaixas = (select, finalidade) => {
-    select.innerHTML = FAIXAS[finalidade === "aluguel" ? "aluguel" : "venda"].map(([v, r]) => `<option value="${v}">${r}</option>`).join("");
-  };
+
+  // Botão "Marcar serviço" do drone: atualiza a mensagem do WhatsApp com tipo, cidade e bairro.
+  const linkDrone = (c) => linkWhats(["Olá, Gustavo! Vim pelo site da GG Imóveis Litoral e tenho interesse no serviço de filmagem com drone. Gostaria de saber os valores e a disponibilidade de agenda.", c.tipo ? `Tipo de imóvel: ${c.tipo}` : "", c.cidade ? `Cidade: ${c.cidade}` : "", c.bairro ? `Bairro: ${c.bairro}` : ""].filter(Boolean).join("\n"));
+  $$("[data-drone]").forEach((box) => {
+    const atualizar = () => {
+      const c = {};
+      $$("[data-campo]", box).forEach((el) => (c[el.dataset.campo] = el.value.trim()));
+      $("[data-drone-link]", box).href = linkDrone(c);
+    };
+    box.addEventListener("input", atualizar);
+    box.addEventListener("change", atualizar);
+  });
   // Grupo Comprar/Alugar: reaproveita as classes dos botões ativo e inativo renderizados pelo site.
   function grupoFinalidade(grupo) {
     const botoes = $$("button[data-finalidade]", grupo);
@@ -77,7 +92,7 @@
   const secImoveis = $('[data-rota="imoveis"]');
   const sel = (rotulo) => $(`select[aria-label="${rotulo}"]`, secImoveis);
   const fin = grupoFinalidade($('[role="radiogroup"]', secImoveis));
-  const campos = { cidade: sel("Cidade"), tipo: sel("Tipo de imóvel"), dorm: sel("Dormitórios"), preco: sel("Valor máximo"), ordem: sel("Ordenar por"), vista: $('input[type="checkbox"]', secImoveis) };
+  const campos = { cidade: sel("Cidade"), tipo: sel("Tipo de imóvel"), dorm: sel("Dormitórios"), preco: $("#filtro-preco", secImoveis), ordem: sel("Ordenar por"), vista: $('input[type="checkbox"]', secImoveis) };
   const cards = $$("article[data-cidade]", secImoveis);
   const grade = cards[0].parentElement;
   const contador = $("p[aria-live]", secImoveis);
@@ -98,11 +113,13 @@
       trocarFaixas(campos.preco, novos.finalidade);
       for (const k in campos) {
         if (k === "vista") campos.vista.checked = !!novos.vista;
+        else if (k === "preco") campos.preco.value = formatar(novos.preco || "");
         else campos[k].value = novos[k] || "";
       }
     }
-    const finalidade = fin.valor() || (campos.preco.value ? "venda" : "");
-    const f = { finalidade, cidade: CIDADES[campos.cidade.value], tipo: campos.tipo.value, dorm: +campos.dorm.value || 0, preco: +campos.preco.value || Infinity, vista: campos.vista.checked, ordem: campos.ordem.value };
+    const precoMax = +digitos(campos.preco) || 0;
+    const finalidade = fin.valor() || (precoMax ? "venda" : "");
+    const f = { finalidade, cidade: CIDADES[campos.cidade.value], tipo: campos.tipo.value, dorm: +campos.dorm.value || 0, preco: precoMax || Infinity, vista: campos.vista.checked, ordem: campos.ordem.value };
     const visiveis = cards.filter((c) => {
       const d = c.dataset;
       const ok = (!f.finalidade || d.finalidade === f.finalidade) && (!f.cidade || d.cidade === f.cidade) && (!f.tipo || d.tipo === f.tipo) && +d.dorm >= f.dorm && +d.preco <= f.preco && (!f.vista || d.vista === "1");
@@ -121,6 +138,7 @@
     limpar.hidden = !(fin.valor() || f.cidade || f.tipo || f.dorm || f.preco !== Infinity || f.vista);
   }
   Object.values(campos).forEach((c) => c.addEventListener("change", () => aplicarFiltros()));
+  campos.preco.addEventListener("input", () => aplicarFiltros());
   fin.botoes.forEach((b) => b.addEventListener("click", () => {
     fin.marcar(b.dataset.finalidade);
     trocarFaixas(campos.preco, b.dataset.finalidade);
@@ -133,11 +151,19 @@
   const busca = $('form[role="search"]');
   if (busca) {
     const finBusca = grupoFinalidade($('[role="radiogroup"]', busca));
-    finBusca.botoes.forEach((b) => b.addEventListener("click", () => { finBusca.marcar(b.dataset.finalidade); trocarFaixas($("#busca-preco"), b.dataset.finalidade); }));
+    const rotuloPreco = $('label[for="busca-preco"] span', busca);
+    finBusca.botoes.forEach((b) => b.addEventListener("click", () => {
+      const v = b.dataset.finalidade;
+      finBusca.marcar(v);
+      $('[data-painel="imoveis"]', busca).hidden = v === "drone";
+      $('[data-painel="drone"]', busca).hidden = v !== "drone";
+      if (v !== "drone") { trocarFaixas($("#busca-preco"), v); rotuloPreco.textContent = v === "aluguel" ? "Aluguel máximo" : "Valor máximo"; }
+    }));
     busca.addEventListener("submit", (e) => {
       e.preventDefault();
       const v = (id) => $("#" + id).value;
-      const filtros = { finalidade: finBusca.valor(), cidade: v("busca-cidade"), tipo: v("busca-tipo"), dorm: v("busca-dorm"), preco: v("busca-preco") };
+      if (finBusca.valor() === "drone") return;
+      const filtros = { finalidade: finBusca.valor(), cidade: v("busca-cidade"), tipo: v("busca-tipo"), dorm: v("busca-dorm"), preco: digitos($("#busca-preco")) };
       if (location.hash === "#imoveis") irPara(); else location.hash = "imoveis";
       aplicarFiltros(filtros);
     });

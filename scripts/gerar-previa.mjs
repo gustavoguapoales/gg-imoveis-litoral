@@ -25,6 +25,8 @@ function reescrever(html, rota) {
     .replace(/<script[\s\S]*?<\/script>/g, "")
     .replace(/src="\/fotos\/([\w-]+)\.jpg"/g, 'data-img="$1"')
     .replace(/src="\/marca\/([\w-]+)\.png"/g, 'data-img="marca-$1"')
+    .replace(/src="\/videos\/([\w-]+)\.mp4"/g, 'data-video="$1"')
+    .replace(/poster="\/videos\/([\w-]+)\.jpg"/g, 'data-poster="$1"')
     .replace(/href="\/imoveis\/\?cidade=([\w-]+)"/g, 'href="#imoveis-$1"')
     .replace(/href="\/imoveis\/([\w-]+)\/"/g, 'href="#$1"')
     .replace(/href="\/imoveis\/"/g, 'href="#imoveis"')
@@ -70,6 +72,15 @@ for (const f of readdirSync(new URL("public/fotos/", RAIZ))) {
 for (const f of readdirSync(new URL("public/marca/", RAIZ))) {
   imagens["marca-" + f.replace(".png", "")] = "data:image/png;base64," + readFileSync(new URL(`public/marca/${f}`, RAIZ)).toString("base64");
 }
+// Vídeos: usa a versão leve (previa/videos-leves/) se existir.
+const videos = {};
+for (const f of readdirSync(new URL("public/videos/", RAIZ))) {
+  const nome = f.replace(/\.(mp4|jpg)$/, "");
+  let arq = new URL(`public/videos/${f}`, RAIZ);
+  try { readFileSync(new URL(`previa/videos-leves/${f}`, RAIZ)); arq = new URL(`previa/videos-leves/${f}`, RAIZ); } catch {}
+  if (f.endsWith(".mp4")) videos[nome] = "data:video/mp4;base64," + readFileSync(arq).toString("base64");
+  else imagens["video-" + nome] = "data:image/jpeg;base64," + readFileSync(arq).toString("base64");
+}
 const dados = Object.fromEntries(imoveis.map((i) => [i.slug, { ref: i.ref, titulo: i.titulo, imagens: i.imagens.map((s) => s.match(/([\w-]+)\.jpg/)[1]) }]));
 const nomesCidades = Object.fromEntries(cidades.map((c) => [c.slug, c.nome]));
 
@@ -100,6 +111,7 @@ ${flutuante}
 <div class="previa-aviso">Prévia · imóveis e imagens ilustrativos</div>
 <script>
 const IMG=${JSON.stringify(imagens)};
+const VIDEOS=${JSON.stringify(videos)};
 const DADOS=${JSON.stringify(dados)};
 const CIDADES=${JSON.stringify(nomesCidades)};
 ${script}

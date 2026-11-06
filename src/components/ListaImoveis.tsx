@@ -4,7 +4,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { cidades, imoveis, tipos } from "@/data/imoveis";
 import { CardImovel } from "./CardImovel";
-import { FAIXAS_PRECO, FINALIDADES } from "./BuscaRapida";
+import { exemploValor, FINALIDADES } from "./BuscaRapida";
+import { CampoValor } from "./CampoValor";
 
 const ORDENS = [
   { valor: "", rotulo: "Mais recentes" },
@@ -108,9 +109,14 @@ function ListaVisual({ f, lista, ativos, definir, limpar }: {
             <option value="">Dormitórios</option>
             {[1, 2, 3, 4].map((n) => (<option key={n} value={n}>{n}+ dormitórios</option>))}
           </select>
-          <select aria-label="Valor máximo" className={sel} value={f.preco} onChange={(e) => definir("preco", e.target.value)}>
-            {FAIXAS_PRECO[f.finalidade === "aluguel" ? "aluguel" : "venda"].map((p) => (<option key={p.valor} value={p.valor}>{p.rotulo}</option>))}
-          </select>
+          <CampoValor
+            id="filtro-preco"
+            rotuloAcessivel="Valor máximo"
+            valor={f.preco}
+            aoMudar={(v) => definir("preco", v)}
+            placeholder={`Valor máximo (${exemploValor(f.finalidade).replace("Ex.: ", "ex. ")})`}
+            className={`${sel} cursor-text placeholder:text-cinza`}
+          />
           <select aria-label="Ordenar por" className={`${sel} max-md:col-span-2`} value={f.ordem} onChange={(e) => definir("ordem", e.target.value)}>
             {ORDENS.map((o) => (<option key={o.valor} value={o.valor}>{o.rotulo}</option>))}
           </select>

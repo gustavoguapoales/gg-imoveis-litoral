@@ -1,17 +1,25 @@
 import type { Metadata } from "next";
-import { FormWhatsApp } from "@/components/FormWhatsApp";
-import { IconeCheck } from "@/components/Icones";
+import { AgendarDrone } from "@/components/AgendarDrone";
+import { IconeCheck, IconeWhatsApp } from "@/components/Icones";
+import { linkDrone } from "@/lib/drone";
 
 export const metadata: Metadata = {
-  title: "Fotos e vídeos com drone para imóveis",
-  description: "Fotos aéreas e vídeos com drone para anúncios de imóveis, condomínios e terrenos no litoral paulista.",
+  title: "Filmagem com drone para imóveis e obras",
+  description: "Fotos e vídeos aéreos com drone de terrenos, prédios, casas e obras no litoral paulista, com edição profissional e recursos de inteligência artificial.",
   alternates: { canonical: "/drone/" },
 };
+
+const SERVICOS = [
+  { titulo: "Terrenos e lotes", texto: "Visão completa da área, dos acessos e da vizinhança. Ajuda o comprador a entender o tamanho e o potencial do terreno sem precisar visitá-lo." },
+  { titulo: "Prédios e condomínios", texto: "Fachada, área de lazer, vista dos andares e a posição do empreendimento no bairro, com a distância real até a praia." },
+  { titulo: "Casas prontas", texto: "Imagens do imóvel e do entorno para anúncios de venda ou locação que se destacam nos portais e nas redes sociais." },
+  { titulo: "Acompanhamento de obras", texto: "Registros periódicos feitos do mesmo ponto de vista, para mostrar a evolução da construção a clientes, investidores e compradores na planta." },
+];
 
 const PACOTES = [
   { nome: "Fotos aéreas", ideal: "Apartamentos e casas", itens: ["15 fotos aéreas tratadas", "Vista da praia e do entorno", "Entrega em até 3 dias"] },
   { nome: "Fotos + vídeo", ideal: "Anúncios de alto padrão", destaque: true, itens: ["25 fotos aéreas tratadas", "Vídeo de 60 a 90 segundos com trilha", "Versão vertical para Reels e Stories"] },
-  { nome: "Terrenos e obras", ideal: "Loteamentos e construtoras", itens: ["Fotos com marcação do lote", "Acompanhamento mensal de obra", "Vídeo de evolução"] },
+  { nome: "Obras e terrenos", ideal: "Construtoras e loteamentos", itens: ["Registro mensal da obra", "Vídeo de evolução", "Projeção do imóvel pronto com IA"] },
 ];
 
 export default function PaginaDrone() {
@@ -22,14 +30,71 @@ export default function PaginaDrone() {
         <img src="/fotos/drone.jpg" alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" />
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(4,34,43,0.9)_0%,rgba(4,34,43,0.55)_55%,rgba(4,34,43,0.2)_100%)]" />
         <div className="container-site">
-          <p className="rotulo text-[#ffd24d]">Serviço de drone</p>
+          <p className="rotulo text-[#ffd24d]">Filmagem com drone</p>
           <h1 className="mt-3 max-w-2xl font-display text-5xl leading-tight md:text-6xl">Mostre o imóvel e tudo o que está em volta dele.</h1>
           <p className="mt-6 max-w-lg text-lg leading-relaxed text-white/80">
-            Fotos aéreas e vídeos que mostram a vista, a distância da praia e o bairro. Anúncios com imagens de drone chamam mais atenção nos portais.
+            Fotos e vídeos aéreos de terrenos, prédios, casas e obras no litoral paulista, com edição profissional.
           </p>
+          <a href={linkDrone()} target="_blank" rel="noopener" className="mt-9 inline-flex items-center gap-2 rounded-full bg-whats px-7 py-4 font-medium text-white transition hover:brightness-110">
+            <IconeWhatsApp /> Marcar serviço
+          </a>
         </div>
       </section>
 
+      {/* SOBRE O SERVIÇO */}
+      <section className="container-site grid gap-14 py-20 lg:grid-cols-[1fr_1.2fr]">
+        <div>
+          <p className="rotulo text-latao-escuro">Como trabalho</p>
+          <h2 className="mt-3 font-display text-4xl leading-tight">Imagens aéreas que ajudam a vender, alugar e acompanhar.</h2>
+          <div className="mt-6 max-w-[60ch] space-y-4 text-[1.05rem] leading-relaxed text-tinta/85">
+            <p>
+              Sou o Gustavo, corretor da GG Imóveis Litoral, e também faço as filmagens com drone. Planejo cada voo de acordo com
+              o imóvel e com o objetivo do material: anúncio, apresentação a investidores ou registro de obra.
+            </p>
+            <p>
+              Atendo terrenos, prédios e casas prontas. Em obras, faço registros periódicos que mostram o andamento da construção
+              e, com ferramentas de inteligência artificial, monto vídeos de apresentação que projetam como o imóvel ficará depois de pronto.
+            </p>
+          </div>
+          <div className="mt-8 rounded-sm border border-latao/40 bg-latao/10 p-5">
+            <p className="font-medium">Vídeos com inteligência artificial (opcional)</p>
+            <p className="mt-1 text-sm leading-relaxed text-cinza">
+              Edição com recursos de IA para criar vídeos de lançamento, apresentações de obra e projeções do imóvel finalizado.
+            </p>
+          </div>
+        </div>
+        <ul className="grid gap-px self-start overflow-hidden rounded-sm bg-linha sm:grid-cols-2">
+          {SERVICOS.map((s) => (
+            <li key={s.titulo} className="bg-papel p-7">
+              <IconeCheck className="text-mar" width={22} height={22} />
+              <h3 className="mt-3 font-display text-2xl">{s.titulo}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-cinza">{s.texto}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* VÍDEO DE EXEMPLO */}
+      <section className="bg-tinta py-20 text-white">
+        <div className="container-site">
+          <p className="rotulo text-[#ffd24d]">Exemplo de vídeo</p>
+          <h2 className="mt-3 font-display text-4xl">Veja como fica o resultado</h2>
+          <div className="mt-10 overflow-hidden rounded-sm bg-black shadow-[0_30px_60px_-30px_rgba(0,0,0,0.8)]">
+            <video
+              className="aspect-video w-full"
+              src="/videos/drone-exemplo.mp4"
+              poster="/videos/drone-exemplo-capa.jpg"
+              controls
+              muted
+              playsInline
+              preload="metadata"
+            />
+          </div>
+          <p className="mt-3 text-xs text-white/55">Vídeo de demonstração montado com imagens ilustrativas.</p>
+        </div>
+      </section>
+
+      {/* PACOTES */}
       <section className="container-site py-20">
         <p className="rotulo text-latao-escuro">Pacotes de exemplo</p>
         <h2 className="mt-3 font-display text-4xl">Escolha o que o seu imóvel precisa</h2>
@@ -45,34 +110,18 @@ export default function PaginaDrone() {
             </div>
           ))}
         </div>
-
-        <div className="mt-16 grid gap-3 sm:grid-cols-3">
-          {["hero", "praia-grande", "guaruja"].map((f) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img key={f} src={`/fotos/${f}.jpg`} alt="Exemplo de foto aérea do litoral" loading="lazy" className="aspect-[4/3] w-full object-cover" />
-          ))}
-        </div>
-        <p className="mt-3 text-xs text-cinza">Exemplos de enquadramento aéreo. Imagens ilustrativas.</p>
       </section>
 
-      <section className="container-site">
-        <div className="grid gap-10 rounded-sm border border-linha bg-nevoa p-6 md:p-10 lg:grid-cols-[1fr_1.4fr]">
+      {/* MARCAR SERVIÇO */}
+      <section id="marcar" className="container-site scroll-mt-24">
+        <div className="grid gap-10 rounded-sm border border-linha bg-nevoa p-6 md:p-10 lg:grid-cols-[1fr_1.6fr]">
           <div>
-            <h2 className="font-display text-3xl">Solicite um orçamento</h2>
-            <p className="mt-3 text-cinza">Informe o tipo de imóvel e o local. Respondo com o valor e a data disponível para o voo.</p>
+            <h2 className="font-display text-3xl">Marcar serviço</h2>
+            <p className="mt-3 text-cinza">
+              Informe o que será filmado e o local. Respondo pelo WhatsApp com o valor e as datas disponíveis para o voo.
+            </p>
           </div>
-          <FormWhatsApp
-            id="drone"
-            cabecalho="Olá! Gostaria de um orçamento de fotos/vídeo com drone."
-            botao="Pedir orçamento"
-            campos={[
-              { nome: "pacote", rotulo: "Pacote", tipo: "select", opcoes: PACOTES.map((p) => p.nome) },
-              { nome: "imovel", rotulo: "Tipo de imóvel", tipo: "select", opcoes: ["Apartamento", "Casa", "Condomínio", "Terreno", "Obra", "Comercial"] },
-              { nome: "local", rotulo: "Cidade e bairro", obrigatorio: true, inteiro: true, placeholder: "Ex.: Guarujá, Enseada" },
-              { nome: "nome", rotulo: "Seu nome", obrigatorio: true },
-              { nome: "telefone", rotulo: "Telefone / WhatsApp", tipo: "tel", obrigatorio: true, placeholder: "(13) 90000-0000" },
-            ]}
-          />
+          <AgendarDrone />
         </div>
       </section>
     </div>
