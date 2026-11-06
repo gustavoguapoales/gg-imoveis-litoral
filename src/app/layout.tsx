@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   description: SITE.descricao,
   openGraph: { type: "website", locale: "pt_BR", siteName: SITE.nome },
   alternates: { canonical: "/" },
+  robots: SITE.indexar ? undefined : { index: false, follow: false },
 };
 
 export const viewport: Viewport = { themeColor: "#04222b" };

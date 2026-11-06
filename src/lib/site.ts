@@ -1,6 +1,9 @@
 export const SITE = {
   nome: "GG Imóveis Litoral",
   url: "https://ggimoveislitoral.com.br", // provisório até a escolha do domínio
+  // false enquanto o site tem imóveis de exemplo: pede ao Google para não indexar.
+  // Mudar para true quando o domínio e os imóveis reais estiverem no ar.
+  indexar: false,
   descricao:
     "Corretor de imóveis no litoral paulista: Santos, São Vicente, Praia Grande, Guarujá, Mongaguá e Itanhaém. Compra, venda e aluguel, com atendimento direto pelo WhatsApp.",
   whatsapp: "5513997771730",
