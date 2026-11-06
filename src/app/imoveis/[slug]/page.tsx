@@ -5,17 +5,14 @@ import { CardImovel, distanciaTexto, Especificacoes, rotuloFinalidade } from "@/
 import { FormContato } from "@/components/FormContato";
 import { Galeria } from "@/components/Galeria";
 import { IconeCheck, IconeOnda, IconePino, IconeWhatsApp } from "@/components/Icones";
-import { getImovel, imoveis } from "@/data/imoveis";
+import { listarPublicos, obterPublico } from "@/lib/banco";
 import { formatarPreco, linkWhatsApp, precoImovel, SITE } from "@/lib/site";
 
-export function generateStaticParams() {
-  return imoveis.map((i) => ({ slug: i.slug }));
-}
-export const dynamicParams = false;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps<"/imoveis/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const i = getImovel(slug);
+  const i = await obterPublico(slug);
   if (!i) return {};
   return {
     title: `${i.titulo}, ${i.bairro}, ${i.cidade}`,
@@ -27,8 +24,9 @@ export async function generateMetadata({ params }: PageProps<"/imoveis/[slug]">)
 
 export default async function PaginaImovel({ params }: PageProps<"/imoveis/[slug]">) {
   const { slug } = await params;
-  const i = getImovel(slug);
+  const i = await obterPublico(slug);
   if (!i) notFound();
+  const imoveis = await listarPublicos();
 
   const msg = `Olá! Tenho interesse no imóvel Ref ${i.ref} (${i.titulo}, ${i.bairro}, ${i.cidade}). Pode me passar mais informações?`;
   const semelhantes = imoveis.filter((o) => o.slug !== i.slug && (o.cidade === i.cidade || o.tipo === i.tipo)).slice(0, 3);

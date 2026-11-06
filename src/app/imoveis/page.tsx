@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ListaImoveis, ListaImoveisEstatica } from "@/components/ListaImoveis";
+import { listarPublicos } from "@/lib/banco";
 
 export const metadata: Metadata = {
   title: "Imóveis para comprar e alugar no litoral paulista",
@@ -8,7 +9,10 @@ export const metadata: Metadata = {
   alternates: { canonical: "/imoveis/" },
 };
 
-export default function PaginaImoveis() {
+export const dynamic = "force-dynamic";
+
+export default async function PaginaImoveis() {
+  const imoveis = await listarPublicos();
   return (
     <div className="container-site pb-28 pt-32 md:pt-40">
       <div className="flex flex-col-reverse gap-8 md:flex-row md:items-end md:justify-between">
@@ -21,8 +25,8 @@ export default function PaginaImoveis() {
         <img src="/marca/logo.png" alt="GG Imóveis Litoral" width={980} height={410} className="h-24 w-auto self-start md:h-32 md:self-auto" />
       </div>
       <div className="mt-10">
-        <Suspense fallback={<ListaImoveisEstatica />}>
-          <ListaImoveis />
+        <Suspense fallback={<ListaImoveisEstatica imoveis={imoveis} />}>
+          <ListaImoveis imoveis={imoveis} />
         </Suspense>
       </div>
     </div>

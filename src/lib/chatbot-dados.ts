@@ -1,4 +1,4 @@
-import { cidades, imoveis } from "@/data/imoveis";
+import { cidades, type Imovel } from "@/data/imoveis";
 import { linkDrone } from "./drone";
 import { linkWhatsApp, precoImovel, SITE } from "./site";
 import { normalizar, type DadosChat } from "./chatbot";
@@ -7,7 +7,7 @@ import { normalizar, type DadosChat } from "./chatbot";
 const SUGESTOES = ["Quero comprar", "Quero alugar", "Anunciar meu imóvel", "Avaliar meu imóvel", "Filmagem com drone", "Falar com o Gustavo"];
 const whats = (msg?: string) => ({ rotulo: "Falar com o Gustavo no WhatsApp", href: linkWhatsApp(msg), externo: true });
 
-export function montarDadosChat(): DadosChat {
+export function montarDadosChat(imoveis: Imovel[]): DadosChat {
   const nomesCidades = cidades.map((c) => c.nome).join(", ").replace(/, ([^,]*)$/, " e $1");
   const bairros = new Map<string, { nome: string; cidadeSlug: string }>();
   for (const c of cidades) for (const b of c.bairros) bairros.set(`${c.slug}:${b}`, { nome: b, cidadeSlug: c.slug });

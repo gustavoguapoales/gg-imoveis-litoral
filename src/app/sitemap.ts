@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
-import { imoveis } from "@/data/imoveis";
+import { listarPublicos } from "@/lib/banco";
 import { SITE } from "@/lib/site";
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const imoveis = await listarPublicos();
   return [
     { url: `${SITE.url}/`, priority: 1 },
     { url: `${SITE.url}/imoveis/`, priority: 0.9 },

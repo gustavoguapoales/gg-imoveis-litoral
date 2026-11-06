@@ -1,10 +1,37 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  // Site estático (pasta out/ gerada por `npm run build`) servido pela Cloudflare.
   "name": "gg-imoveis-litoral",
+  "main": ".open-next/worker.js",
+  // A Cloudflare roda `npx wrangler deploy`; antes disso, este comando gera o Worker com o OpenNext.
+  "build": { "command": "npx opennextjs-cloudflare build" },
   "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
-    "directory": "./out",
-    "not_found_handling": "404-page"
-  }
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    // Referência ao próprio Worker, exigida pelo OpenNext.
+    { "binding": "WORKER_SELF_REFERENCE", "service": "gg-imoveis-litoral" }
+  ],
+  // Imóveis (dados públicos e privados separados), registro de fotos e de acessos ao painel.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "gg-imoveis",
+      "database_id": "9378b9c3-38b6-4d62-809c-150741349e5e",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // Fotos enviadas pelo painel.
+  "r2_buckets": [{ "binding": "FOTOS", "bucket_name": "gg-imoveis-fotos" }],
+  // Aviso de login no painel (só pode enviar para este endereço verificado).
+  "send_email": [{ "name": "EMAIL", "destination_address": "gustavo.guapo70@gmail.com" }],
+  "vars": {
+    // Equipe da Cloudflare Zero Trust e identificador do app do painel (preenchido após criar o app).
+    "ACCESS_EQUIPE": "ggimovies",
+    "ACCESS_AUD": "",
+    "PAINEL_EMAIL": "gustavo.guapo70@gmail.com"
+  },
+  "observability": { "enabled": false }
 }
