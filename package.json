@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "previa": "node --experimental-strip-types --no-warnings scripts/gerar-previa.mjs"
+    "previa": "node --experimental-strip-types --no-warnings scripts/gerar-previa.mjs",
+    "previa-painel": "node scripts/gerar-painel-previa.mjs"
   },
   "dependencies": {
     "next": "16.4.5",
@@ -19,6 +20,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "esbuild": "^0.25.10",
     "eslint": "^9",
     "eslint-config-next": "16.4.5",
     "tailwindcss": "^4",

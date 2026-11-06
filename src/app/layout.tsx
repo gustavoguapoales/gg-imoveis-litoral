@@ -7,6 +7,7 @@ import { BotaoWhatsFlutuante } from "@/components/BotaoWhatsFlutuante";
 import { Chatbot } from "@/components/Chatbot";
 import { montarDadosChat } from "@/lib/chatbot-dados";
 import { SITE } from "@/lib/site";
+import { SomenteSite } from "@/components/SomenteSite";
 
 const bodoni = Bodoni_Moda({ variable: "--font-bodoni", subsets: ["latin"], style: ["normal", "italic"], display: "swap" });
 const albert = Albert_Sans({ variable: "--font-albert", subsets: ["latin"], display: "swap" });
@@ -37,11 +38,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="pt-BR" className={`${bodoni.variable} ${albert.variable} ${plex.variable}`}>
       <body className="min-h-screen flex flex-col">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-        <Cabecalho />
+        <SomenteSite><Cabecalho /></SomenteSite>
         <main className="flex-1">{children}</main>
-        <Rodape />
-        <BotaoWhatsFlutuante />
-        <Chatbot dados={montarDadosChat()} />
+        <SomenteSite>
+          <Rodape />
+          <BotaoWhatsFlutuante />
+          <Chatbot dados={montarDadosChat()} />
+        </SomenteSite>
       </body>
     </html>
   );
