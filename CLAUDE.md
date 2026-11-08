@@ -28,8 +28,8 @@ WhatsApp (13) 99777-1730. Atende Santos, São Vicente, Praia Grande, Guarujá, M
   "Clientes GG Imóveis" `1QVdFU7IFNaDK6OwcOaUpagA3KC7iWiqm0mHRckiokZE` (aba `Clientes`, colunas A–O) e
   "Proprietários GG Imóveis" `13tanY-Wfm-LWV1PNmodfOssQ7g4s7zR-ybcctI9RRb0` (aba `Proprietários`, A–S, 1 linha por Ref).
   O site grava no D1 (`clientes` e `proprietarios`, `sincronizado=0`; cliente também gera e-mail na hora);
-  a tarefa agendada de hora em hora roda `node scripts/planilhas/sincronizar.mjs pendentes`, grava nas planilhas
-  pelo conector Google Sheets e depois `... marcar <arquivo>`.
+  para levar às planilhas: rodar `node scripts/planilhas/sincronizar.mjs pendentes` numa sessão, gravar
+  pelo conector Google Sheets e depois `... marcar <arquivo>` (falta automação: tarefa agendada sem conector não funciona).
 - **Assistente do site:** `src/lib/chatbot.ts` (lógica) e `src/lib/chatbot-dados.ts` (respostas). Sem IA paga.
 
 ## Ferramentas desta sessão na nuvem
