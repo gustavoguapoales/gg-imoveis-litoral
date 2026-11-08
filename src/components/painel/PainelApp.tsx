@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Cidade, Finalidade, Imovel, Tipo } from "@/data/imoveis";
 import { cidades, tipos } from "@/data/imoveis";
-import { LOCAIS_CHAVES, STATUS, type DadosPrivados, type StatusImovel } from "@/data/privado-demo";
+import { LOCAIS_CHAVES, NO_SITE, STATUS, type DadosPrivados, type StatusImovel } from "@/data/privado-demo";
 import { precoImovel } from "@/lib/site";
 import { IconeChevron, IconeFechar, IconeLupa, IconeWhatsApp } from "../Icones";
 
@@ -38,6 +38,7 @@ const foto = (src: string) => {
 };
 
 const COR_STATUS: Record<StatusImovel, string> = {
+  Rascunho: "bg-violet-100 text-violet-800",
   Disponível: "bg-emerald-100 text-emerald-800",
   Reservado: "bg-amber-100 text-amber-800",
   Vendido: "bg-slate-200 text-slate-700",
@@ -112,7 +113,7 @@ function Campo({ id, rotulo, children, largo }: { id: string; rotulo: string; ch
 // ---------- Ficha do imóvel (editar / novo) ----------
 function Ficha({ inicial, novo, baseSite, siteHash, servidor, aoSalvar, aoExcluir, aoFechar }: {
   inicial: Registro; novo: boolean; baseSite: string; siteHash?: boolean; servidor?: boolean;
-  aoSalvar: (r: Registro) => Promise<string | null>; aoExcluir: (r: Registro) => Promise<string | null>; aoFechar: () => void;
+  aoSalvar: (r: Registro, acao?: "publicar" | "retirar") => Promise<string | null>; aoExcluir: (r: Registro) => Promise<string | null>; aoFechar: () => void;
 }) {
   const [r, setR] = useState<Registro>(inicial);
   const [erro, setErro] = useState("");
@@ -158,12 +159,15 @@ function Ficha({ inicial, novo, baseSite, siteHash, servidor, aoSalvar, aoExclui
     });
   }
 
-  async function salvar() {
+  // acao "publicar": coloca no site (Disponível). "retirar": volta para Rascunho (sai do site).
+  async function salvar(acao?: "publicar" | "retirar") {
     if (!r.pub.titulo.trim() || !r.pub.bairro.trim() || !r.pub.preco) return setErro("Preencha pelo menos título, bairro e preço.");
     if (!r.priv.proprietario.trim() || !r.priv.telefone.trim()) return setErro("Preencha o nome e o telefone do proprietário.");
+    if (acao === "publicar" && r.pub.imagens.length === 0) return setErro("Adicione pelo menos uma foto antes de publicar no site.");
     setErro("");
-    setOcupado("Salvando…");
-    const falha = await aoSalvar(r);
+    setOcupado(acao === "publicar" ? "Publicando no site…" : acao === "retirar" ? "Tirando do site…" : "Salvando…");
+    const status: StatusImovel = acao === "publicar" ? "Disponível" : acao === "retirar" ? "Rascunho" : r.priv.status;
+    const falha = await aoSalvar({ ...r, priv: { ...r.priv, status } }, acao);
     setOcupado("");
     if (falha) setErro(falha);
   }
@@ -182,6 +186,7 @@ function Ficha({ inicial, novo, baseSite, siteHash, servidor, aoSalvar, aoExclui
     if (servidor && src.startsWith("/midia/")) fetch(`/api/painel/fotos/?chave=${encodeURIComponent(src.slice(7))}`, { method: "DELETE" }).catch(() => {});
   }
 
+  const noSite = NO_SITE.includes(r.priv.status);
   const linkSite = siteHash ? `${baseSite}#${r.pub.slug}` : `${baseSite}/imoveis/${r.pub.slug}/`;
   const endereco = [r.priv.endereco, r.priv.complemento, r.pub.bairro, r.pub.cidade, "SP"].filter(Boolean).join(", ");
 
@@ -286,10 +291,24 @@ function Ficha({ inicial, novo, baseSite, siteHash, servidor, aoSalvar, aoExclui
             <button type="button" onClick={() => setConfirmarExclusao(true)} className="text-xs font-medium text-rose-700 underline">Excluir imóvel</button>
           ))}
           {ocupado ? <p className="basis-full text-sm text-mar sm:basis-auto sm:flex-1" role="status">{ocupado}</p> : erro ? <p className="basis-full text-sm text-rose-700 sm:basis-auto sm:flex-1" role="alert">{erro}</p> : (
-            <p className="basis-full text-xs text-cinza sm:basis-auto sm:flex-1">{novo ? "O imóvel novo aparece no site depois de salvo." : <a href={linkSite} target="_blank" rel="noopener" className="text-mar underline">Ver anúncio no site</a>}</p>
+            <p className="basis-full text-xs text-cinza sm:basis-auto sm:flex-1">
+              {noSite && !novo ? <a href={linkSite} target="_blank" rel="noopener" className="text-mar underline">Ver anúncio no site</a>
+                : r.priv.status === "Rascunho" ? "Rascunho: ainda não aparece no site."
+                : `${r.priv.status}: fora do site.`}
+            </p>
           )}
-          <button type="button" onClick={aoFechar} className="flex-1 rounded-full border border-tinta/25 px-6 py-3 text-sm font-medium hover:border-tinta sm:flex-none">Cancelar</button>
-          <button type="button" onClick={salvar} disabled={!!ocupado} className="disabled:opacity-60 flex-[2] rounded-full bg-tinta px-7 py-3 text-sm font-semibold text-white hover:bg-mar sm:flex-none">Salvar alterações</button>
+          <button type="button" onClick={aoFechar} className="flex-1 rounded-full border border-tinta/25 px-5 py-3 text-sm font-medium hover:border-tinta sm:flex-none">Cancelar</button>
+          {noSite ? (
+            <>
+              <button type="button" onClick={() => salvar("retirar")} disabled={!!ocupado} className="flex-1 rounded-full border border-rose-300 px-5 py-3 text-sm font-medium text-rose-700 hover:border-rose-600 disabled:opacity-60 sm:flex-none">Tirar do site</button>
+              <button type="button" onClick={() => salvar()} disabled={!!ocupado} className="flex-[2] rounded-full bg-tinta px-7 py-3 text-sm font-semibold text-white hover:bg-mar disabled:opacity-60 sm:flex-none">Salvar alterações</button>
+            </>
+          ) : (
+            <>
+              <button type="button" onClick={() => salvar()} disabled={!!ocupado} className="flex-1 rounded-full border border-tinta/25 px-5 py-3 text-sm font-medium hover:border-tinta disabled:opacity-60 sm:flex-none">{r.priv.status === "Rascunho" ? "Salvar rascunho" : "Salvar"}</button>
+              <button type="button" onClick={() => salvar("publicar")} disabled={!!ocupado} className="basis-full rounded-full bg-whats px-7 py-3 text-sm font-semibold text-white hover:brightness-110 disabled:opacity-60 sm:basis-auto">Publicar no site</button>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -360,8 +379,8 @@ export function PainelApp({ imoveis = [], privados = {}, baseSite, siteHash, ser
 
   const resumo = useMemo(() => ({
     total: lista.length,
-    disponiveis: lista.filter((r) => r.priv.status === "Disponível").length,
-    reservados: lista.filter((r) => r.priv.status === "Reservado").length,
+    noSite: lista.filter((r) => NO_SITE.includes(r.priv.status)).length,
+    rascunhos: lista.filter((r) => r.priv.status === "Rascunho").length,
     fechados: lista.filter((r) => r.priv.status === "Vendido" || r.priv.status === "Alugado").length,
     vencendo: lista.filter((r) => r.priv.exclusividade && diasAte(r.priv.exclusividadeAte) >= 0 && diasAte(r.priv.exclusividadeAte) <= 30).length,
   }), [lista]);
@@ -373,7 +392,7 @@ export function PainelApp({ imoveis = [], privados = {}, baseSite, siteHash, ser
       novo: true,
       r: {
         pub: { slug: `novo-${ref.toLowerCase()}`, ref, titulo: "", tipo: "Apartamento", finalidade: "venda", cidade: "Santos", bairro: "", preco: 0, area: 0, dormitorios: 0, suites: 0, banheiros: 0, vagas: 0, distanciaPraia: 0, vistaMar: false, destaque: true, resumo: "", descricao: [], caracteristicas: [], lazer: [], imagens: [] },
-        priv: { status: "Disponível", endereco: "", complemento: "", cep: "", proprietario: "", telefone: "", email: "", chaves: "Com o corretor", chavesObs: "", comissao: "6%", exclusividade: false, exclusividadeAte: "", captadoEm: new Date().toISOString().slice(0, 10), observacoes: "" },
+        priv: { status: "Rascunho", endereco: "", complemento: "", cep: "", proprietario: "", telefone: "", email: "", chaves: "Com o corretor", chavesObs: "", comissao: "6%", exclusividade: false, exclusividadeAte: "", captadoEm: new Date().toISOString().slice(0, 10), observacoes: "" },
       },
     });
   }
@@ -383,7 +402,7 @@ export function PainelApp({ imoveis = [], privados = {}, baseSite, siteHash, ser
     setTimeout(() => setAviso(""), 3500);
   }
 
-  async function salvar(r: Registro): Promise<string | null> {
+  async function salvar(r: Registro, acao?: "publicar" | "retirar"): Promise<string | null> {
     let salvo = r;
     if (servidor) {
       try {
@@ -399,7 +418,11 @@ export function PainelApp({ imoveis = [], privados = {}, baseSite, siteHash, ser
     const existe = lista.some((x) => x.pub.ref === salvo.pub.ref);
     guardar(existe ? lista.map((x) => (x.pub.ref === salvo.pub.ref ? salvo : x)) : [salvo, ...lista]);
     setAberto(null);
-    avisar(existe ? `Ref ${salvo.pub.ref} atualizado.` : `Ref ${salvo.pub.ref} cadastrado.`);
+    avisar(
+      acao === "publicar" ? `Publicado! Ref ${salvo.pub.ref} já está no site, em destaque na página inicial.`
+        : acao === "retirar" ? `Ref ${salvo.pub.ref} saiu do site e voltou para rascunho.`
+        : existe ? `Ref ${salvo.pub.ref} atualizado.` : `Ref ${salvo.pub.ref} salvo como rascunho.`,
+    );
     return null;
   }
 
@@ -445,8 +468,8 @@ export function PainelApp({ imoveis = [], privados = {}, baseSite, siteHash, ser
 
         <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-5">
           <Tile rotulo="Imóveis cadastrados" valor={resumo.total} />
-          <Tile rotulo="Disponíveis" valor={resumo.disponiveis} />
-          <Tile rotulo="Reservados" valor={resumo.reservados} />
+          <Tile rotulo="Publicados no site" valor={resumo.noSite} />
+          <Tile rotulo="Rascunhos (fora do site)" valor={resumo.rascunhos} />
           <Tile rotulo="Vendidos ou alugados" valor={resumo.fechados} />
           <div className="col-span-2 md:col-span-1"><Tile rotulo="Exclusividades vencendo (30 dias)" valor={resumo.vencendo} destaque /></div>
         </div>

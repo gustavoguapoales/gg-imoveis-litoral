@@ -2,8 +2,10 @@
 // Na versão final estes dados ficam no banco de dados (Cloudflare D1), protegidos por login,
 // e NUNCA entram no código nem no GitHub.
 
-export type StatusImovel = "Disponível" | "Reservado" | "Vendido" | "Alugado" | "Suspenso";
-export const STATUS: StatusImovel[] = ["Disponível", "Reservado", "Vendido", "Alugado", "Suspenso"];
+export type StatusImovel = "Rascunho" | "Disponível" | "Reservado" | "Vendido" | "Alugado" | "Suspenso";
+export const STATUS: StatusImovel[] = ["Rascunho", "Disponível", "Reservado", "Vendido", "Alugado", "Suspenso"];
+// Só estes status aparecem no site. "Rascunho" fica só no painel até o corretor clicar em "Publicar no site".
+export const NO_SITE: StatusImovel[] = ["Disponível", "Reservado"];
 export const LOCAIS_CHAVES = ["Com o corretor", "Com o proprietário", "Na portaria", "Com o caseiro", "Outro"];
 
 export interface DadosPrivados {

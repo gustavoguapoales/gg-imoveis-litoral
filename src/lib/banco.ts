@@ -4,12 +4,10 @@
 
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import type { Imovel } from "@/data/imoveis";
-import type { DadosPrivados, StatusImovel } from "@/data/privado-demo";
+import { NO_SITE, type DadosPrivados, type StatusImovel } from "@/data/privado-demo";
 
 export type Registro = { pub: Imovel; priv: DadosPrivados };
 
-// Imóveis com estes status aparecem no site. Vendidos, alugados e suspensos ficam só no painel.
-const NO_SITE: StatusImovel[] = ["Disponível", "Reservado"];
 
 export async function ambiente() {
   return (await getCloudflareContext({ async: true })).env;
