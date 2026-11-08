@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { linkWhatsApp } from "@/lib/site";
+import { registrarCliente } from "@/lib/cliente";
 import { IconeWhatsApp } from "./Icones";
 
 const input = "w-full rounded-sm border border-linha bg-papel px-4 py-3 text-tinta outline-none transition focus:border-mar";
@@ -30,6 +31,10 @@ export function FormContato({ imovelRef }: { imovelRef?: string }) {
       `Telefone: ${telefone}`,
       d.get("email") ? `E-mail: ${d.get("email")}` : "",
     ].filter(Boolean);
+    registrarCliente({
+      nome, telefone, email: String(d.get("email") ?? ""), interesse: String(d.get("interesse") ?? "Contato pelo site"),
+      ref: imovelRef, cidade: String(d.get("cidade") ?? ""), mensagem: String(d.get("mensagem") ?? ""),
+    });
     window.open(linkWhatsApp(linhas.join("\n")), "_blank", "noopener");
   }
 

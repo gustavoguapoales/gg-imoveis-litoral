@@ -65,6 +65,7 @@ export default function PaginaAnunciar() {
           <div className="mt-8">
             <FormWhatsApp
               id="anunciar"
+              interesse="Quer anunciar imóvel"
               cabecalho="Olá! Quero anunciar meu imóvel com a GG Imóveis Litoral."
               botao="Enviar cadastro"
               campos={[

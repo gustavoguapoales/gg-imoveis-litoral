@@ -4,9 +4,10 @@ import { notFound } from "next/navigation";
 import { CardImovel, distanciaTexto, Especificacoes, rotuloFinalidade } from "@/components/CardImovel";
 import { FormContato } from "@/components/FormContato";
 import { Galeria } from "@/components/Galeria";
-import { IconeCheck, IconeOnda, IconePino, IconeWhatsApp } from "@/components/Icones";
+import { BotaoInteresse } from "@/components/BotaoInteresse";
+import { IconeCheck, IconeOnda, IconePino } from "@/components/Icones";
 import { listarPublicos, obterPublico } from "@/lib/banco";
-import { formatarPreco, linkWhatsApp, precoImovel, SITE } from "@/lib/site";
+import { formatarPreco, precoImovel, SITE } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,7 @@ export default async function PaginaImovel({ params }: PageProps<"/imoveis/[slug
   if (!i) notFound();
   const imoveis = await listarPublicos();
 
-  const msg = `Olá! Tenho interesse no imóvel Ref ${i.ref} (${i.titulo}, ${i.bairro}, ${i.cidade}). Pode me passar mais informações?`;
+  const msgInteresse = `Tenho interesse no imóvel Ref ${i.ref} (${i.titulo}, ${i.bairro}, ${i.cidade}). Pode me passar mais informações?`;
   const semelhantes = imoveis.filter((o) => o.slug !== i.slug && (o.cidade === i.cidade || o.tipo === i.tipo)).slice(0, 3);
   const jsonLd = {
     "@context": "https://schema.org",
@@ -66,9 +67,7 @@ export default async function PaginaImovel({ params }: PageProps<"/imoveis/[slug
               <p className="text-xs text-cinza">{i.finalidade === "aluguel" ? "Aluguel mensal" : "Valor de venda"}</p>
               <p className="text-2xl font-semibold tabular-nums">{precoImovel(i)}</p>
             </div>
-            <a href={linkWhatsApp(msg)} target="_blank" rel="noopener" className="flex items-center gap-2 rounded-full bg-whats px-5 py-3 text-sm font-medium text-white">
-              <IconeWhatsApp width={17} height={17} /> Consultar
-            </a>
+            <BotaoInteresse refImovel={i.ref} titulo={i.titulo} mensagem={msgInteresse} rotulo="Consultar" className="flex items-center gap-2 rounded-full bg-whats px-5 py-3 text-sm font-medium text-white" />
           </div>
 
           <div className="mt-8"><Especificacoes imovel={i} /></div>
@@ -125,9 +124,7 @@ export default async function PaginaImovel({ params }: PageProps<"/imoveis/[slug
               {i.finalidade === "venda" && (<div className="flex justify-between"><dt className="text-cinza">Valor por m²</dt><dd className="tabular-nums">{formatarPreco(Math.round(i.preco / i.area))}</dd></div>)}
               {i.finalidade === "aluguel" && (<div className="flex justify-between border-t border-linha pt-2 font-medium"><dt>Total mensal</dt><dd className="tabular-nums">{formatarPreco(i.preco + (i.condominio ?? 0) + (i.iptu ?? 0))}</dd></div>)}
             </dl>
-            <a href={linkWhatsApp(msg)} target="_blank" rel="noopener" className="mt-7 flex items-center justify-center gap-2 rounded-full bg-whats py-4 font-medium text-white transition hover:brightness-110">
-              <IconeWhatsApp /> Consultar pelo WhatsApp
-            </a>
+            <BotaoInteresse refImovel={i.ref} titulo={i.titulo} mensagem={msgInteresse} rotulo="Consultar pelo WhatsApp" className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-whats py-4 font-medium text-white transition hover:brightness-110" />
             <a href="#interesse" className="mt-3 flex items-center justify-center rounded-full border border-tinta/25 py-3.5 text-sm font-medium hover:border-tinta">
               Agendar visita
             </a>

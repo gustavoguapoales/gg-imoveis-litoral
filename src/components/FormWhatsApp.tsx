@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { linkWhatsApp } from "@/lib/site";
+import { registrarCliente } from "@/lib/cliente";
 import { IconeWhatsApp } from "./Icones";
 
 export type Campo = {
@@ -17,7 +18,8 @@ export type Campo = {
 const input = "w-full rounded-sm border border-linha bg-papel px-4 py-3 text-tinta outline-none transition focus:border-mar";
 
 // Formulário genérico: monta uma mensagem com todos os campos e abre o WhatsApp.
-export function FormWhatsApp({ id, cabecalho, campos, botao = "Enviar pelo WhatsApp" }: { id: string; cabecalho: string; campos: Campo[]; botao?: string }) {
+// "interesse" aparece na planilha de clientes (ex.: "Quer anunciar imóvel").
+export function FormWhatsApp({ id, cabecalho, campos, interesse, botao = "Enviar pelo WhatsApp" }: { id: string; cabecalho: string; campos: Campo[]; interesse: string; botao?: string }) {
   const [erro, setErro] = useState("");
 
   function enviar(e: React.FormEvent<HTMLFormElement>) {
@@ -30,6 +32,12 @@ export function FormWhatsApp({ id, cabecalho, campos, botao = "Enviar pelo Whats
     }
     setErro("");
     const linhas = [cabecalho, ...campos.map((c) => [c.rotulo, String(d.get(c.nome) ?? "").trim()]).filter(([, v]) => v).map(([r, v]) => `${r}: ${v}`)];
+    const valor = (n: string) => String(d.get(n) ?? "").trim();
+    registrarCliente({
+      nome: valor("nome"), telefone: valor("telefone"), interesse,
+      cidade: valor("cidade") || valor("local"), bairro: valor("bairro"),
+      mensagem: campos.filter((c) => !["nome", "telefone"].includes(c.nome) && valor(c.nome)).map((c) => `${c.rotulo}: ${valor(c.nome)}`).join(" · "),
+    });
     window.open(linkWhatsApp(linhas.join("\n")), "_blank", "noopener");
   }
 

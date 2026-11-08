@@ -60,7 +60,29 @@ export async function salvar(r: Registro): Promise<Registro> {
     await DB.prepare("INSERT INTO imoveis (ref, slug, status, publico, privado, ordem) VALUES (?, ?, ?, ?, ?, -1)")
       .bind(pub.ref, slug, status, JSON.stringify(pub), JSON.stringify(privado)).run();
   }
+  await registrarProprietario(pub, r.priv);
   return { pub, priv: r.priv };
+}
+
+const brl = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+const dataBR = (iso: string) => (iso ? iso.split("-").reverse().join("/") : "");
+
+// Guarda uma cópia dos dados do proprietário para a planilha "Proprietários GG Imóveis".
+async function registrarProprietario(pub: Imovel, priv: DadosPrivados, situacao?: string) {
+  const { DB } = await ambiente();
+  const dados = {
+    ref: pub.ref, proprietario: priv.proprietario, telefone: priv.telefone, email: priv.email,
+    endereco: priv.endereco, complemento: priv.complemento, cep: priv.cep, bairro: pub.bairro, cidade: pub.cidade,
+    imovel: pub.titulo, finalidade: pub.finalidade === "aluguel" ? "Aluguel" : "Venda",
+    valor: pub.finalidade === "aluguel" ? `${brl(pub.preco)}/mês` : brl(pub.preco),
+    situacao: situacao ?? (NO_SITE.includes(priv.status) ? `No site (${priv.status})` : priv.status),
+    comissao: priv.comissao, exclusividade: priv.exclusividade ? dataBR(priv.exclusividadeAte) || "Sim" : "Não",
+    captado: dataBR(priv.captadoEm), chaves: [priv.chaves, priv.chavesObs].filter(Boolean).join(" — "), observacoes: priv.observacoes,
+  };
+  await DB.prepare(
+    "INSERT INTO proprietarios (ref, dados, atualizado_em, sincronizado) VALUES (?, ?, datetime('now'), 0) " +
+    "ON CONFLICT(ref) DO UPDATE SET dados = excluded.dados, atualizado_em = excluded.atualizado_em, sincronizado = 0",
+  ).bind(pub.ref, JSON.stringify(dados)).run();
 }
 
 export async function proximaRef(): Promise<string> {
@@ -73,6 +95,9 @@ export async function proximaRef(): Promise<string> {
 // Exclui o imóvel e as fotos dele que estão no R2.
 export async function remover(ref: string) {
   const { DB, FOTOS } = await ambiente();
+  // Mantém o proprietário na planilha, marcado como excluído do painel.
+  const antes = await DB.prepare("SELECT publico, privado FROM imoveis WHERE ref = ?").bind(ref).first<{ publico: string; privado: string }>();
+  if (antes) await registrarProprietario(JSON.parse(antes.publico), { ...JSON.parse(antes.privado), status: "Suspenso" }, "Excluído do painel");
   const fotos = await DB.prepare("SELECT chave FROM fotos WHERE ref = ?").bind(ref).all<{ chave: string }>();
   if (fotos.results.length) await FOTOS.delete(fotos.results.map((f) => f.chave));
   await DB.batch([DB.prepare("DELETE FROM fotos WHERE ref = ?").bind(ref), DB.prepare("DELETE FROM imoveis WHERE ref = ?").bind(ref)]);
