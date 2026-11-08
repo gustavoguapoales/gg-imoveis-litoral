@@ -12,6 +12,21 @@ import { precoImovel } from "@/lib/site";
 import { IconeChevron, IconeFechar, IconeLupa, IconeWhatsApp } from "../Icones";
 
 type Registro = { pub: Imovel; priv: DadosPrivados };
+// Modo servidor: dados vêm do banco (D1) e são salvos pela API protegida. Sem isso, é o protótipo local.
+export type DadosServidor = { usuario: string; registros: Registro[]; bytesFotos: number };
+const LIMITE_FOTOS = 8 * 1024 ** 3;
+const mb = (b: number) => (b / 1024 ** 2).toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+
+// Reduz a foto no próprio aparelho antes de enviar (máx. 1600 px, JPEG): ~300 KB por foto.
+async function reduzirFoto(arquivo: File): Promise<Blob> {
+  const bmp = await createImageBitmap(arquivo);
+  const escala = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+  const tela = document.createElement("canvas");
+  tela.width = Math.round(bmp.width * escala);
+  tela.height = Math.round(bmp.height * escala);
+  tela.getContext("2d")!.drawImage(bmp, 0, 0, tela.width, tela.height);
+  return new Promise((ok, falha) => tela.toBlob((b) => (b ? ok(b) : falha(new Error("Falha ao reduzir a foto"))), "image/jpeg", 0.82));
+}
 const CHAVE_LOCAL = "gg-painel-prototipo-v1";
 
 // Na prévia as fotos chegam embutidas; no site, pelo caminho normal.
@@ -95,12 +110,14 @@ function Campo({ id, rotulo, children, largo }: { id: string; rotulo: string; ch
 }
 
 // ---------- Ficha do imóvel (editar / novo) ----------
-function Ficha({ inicial, novo, baseSite, siteHash, aoSalvar, aoFechar }: {
-  inicial: Registro; novo: boolean; baseSite: string; siteHash?: boolean;
-  aoSalvar: (r: Registro) => void; aoFechar: () => void;
+function Ficha({ inicial, novo, baseSite, siteHash, servidor, aoSalvar, aoExcluir, aoFechar }: {
+  inicial: Registro; novo: boolean; baseSite: string; siteHash?: boolean; servidor?: boolean;
+  aoSalvar: (r: Registro) => Promise<string | null>; aoExcluir: (r: Registro) => Promise<string | null>; aoFechar: () => void;
 }) {
   const [r, setR] = useState<Registro>(inicial);
   const [erro, setErro] = useState("");
+  const [ocupado, setOcupado] = useState("");
+  const [confirmarExclusao, setConfirmarExclusao] = useState(false);
   const pub = <K extends keyof Imovel>(k: K, v: Imovel[K]) => setR((x) => ({ ...x, pub: { ...x.pub, [k]: v } }));
   const priv = <K extends keyof DadosPrivados>(k: K, v: DadosPrivados[K]) => setR((x) => ({ ...x, priv: { ...x.priv, [k]: v } }));
   const num = (v: string) => Number(soDigitos(v)) || 0;
@@ -112,8 +129,28 @@ function Ficha({ inicial, novo, baseSite, siteHash, aoSalvar, aoFechar }: {
     return () => { document.removeEventListener("keydown", esc); document.body.style.overflow = ""; };
   }, [aoFechar]);
 
-  function adicionarFotos(arquivos: FileList | null) {
+  async function adicionarFotos(arquivos: FileList | null) {
     if (!arquivos) return;
+    if (servidor) {
+      const lista = Array.from(arquivos).slice(0, 10);
+      for (const [k, f] of lista.entries()) {
+        setOcupado(`Enviando foto ${k + 1} de ${lista.length}…`);
+        try {
+          const dados = new FormData();
+          dados.set("ref", r.pub.ref);
+          dados.set("foto", new File([await reduzirFoto(f)], "foto.jpg", { type: "image/jpeg" }));
+          const resp = await fetch("/api/painel/fotos/", { method: "POST", body: dados });
+          const json = (await resp.json()) as { url?: string; erro?: string };
+          if (!resp.ok || !json.url) { setErro(json.erro ?? "Não foi possível enviar a foto."); break; }
+          setR((x) => ({ ...x, pub: { ...x.pub, imagens: [...x.pub.imagens, json.url!] } }));
+        } catch {
+          setErro("Não foi possível enviar a foto. Verifique a internet e tente de novo.");
+          break;
+        }
+      }
+      setOcupado("");
+      return;
+    }
     Array.from(arquivos).slice(0, 10).forEach((f) => {
       const leitor = new FileReader();
       leitor.onload = () => setR((x) => ({ ...x, pub: { ...x.pub, imagens: [...x.pub.imagens, String(leitor.result)] } }));
@@ -121,11 +158,28 @@ function Ficha({ inicial, novo, baseSite, siteHash, aoSalvar, aoFechar }: {
     });
   }
 
-  function salvar() {
+  async function salvar() {
     if (!r.pub.titulo.trim() || !r.pub.bairro.trim() || !r.pub.preco) return setErro("Preencha pelo menos título, bairro e preço.");
     if (!r.priv.proprietario.trim() || !r.priv.telefone.trim()) return setErro("Preencha o nome e o telefone do proprietário.");
     setErro("");
-    aoSalvar(r);
+    setOcupado("Salvando…");
+    const falha = await aoSalvar(r);
+    setOcupado("");
+    if (falha) setErro(falha);
+  }
+
+  async function excluir() {
+    setOcupado("Excluindo…");
+    const falha = await aoExcluir(r);
+    setOcupado("");
+    if (falha) setErro(falha);
+  }
+
+  function removerFoto(k: number) {
+    const src = r.pub.imagens[k];
+    pub("imagens", r.pub.imagens.filter((_, j) => j !== k));
+    // Foto enviada pelo painel: apaga do armazenamento para liberar espaço.
+    if (servidor && src.startsWith("/midia/")) fetch(`/api/painel/fotos/?chave=${encodeURIComponent(src.slice(7))}`, { method: "DELETE" }).catch(() => {});
   }
 
   const linkSite = siteHash ? `${baseSite}#${r.pub.slug}` : `${baseSite}/imoveis/${r.pub.slug}/`;
@@ -199,7 +253,8 @@ function Ficha({ inicial, novo, baseSite, siteHash, aoSalvar, aoFechar }: {
                     <Campo key={k} id={`f-${k}`} rotulo={rot}><input id={`f-${k}`} inputMode="numeric" className={inp} value={String(r.pub[k] ?? "")} onChange={(e) => pub(k, num(e.target.value))} /></Campo>
                   ))}
                 </div>
-                <label htmlFor="f-vista" className="flex items-center gap-2 text-sm font-medium sm:col-span-2"><input id="f-vista" type="checkbox" className="h-4 w-4 accent-mar" checked={r.pub.vistaMar} onChange={(e) => pub("vistaMar", e.target.checked)} /> Vista para o mar</label>
+                <label htmlFor="f-vista" className="flex items-center gap-2 text-sm font-medium"><input id="f-vista" type="checkbox" className="h-4 w-4 accent-mar" checked={r.pub.vistaMar} onChange={(e) => pub("vistaMar", e.target.checked)} /> Vista para o mar</label>
+                <label htmlFor="f-destaque" className="flex items-center gap-2 text-sm font-medium"><input id="f-destaque" type="checkbox" className="h-4 w-4 accent-mar" checked={r.pub.destaque} onChange={(e) => pub("destaque", e.target.checked)} /> Destaque na página inicial</label>
                 <Campo id="f-desc" rotulo="Descrição" largo><textarea id="f-desc" rows={5} className={inp} value={r.pub.descricao.join("\n\n")} onChange={(e) => pub("descricao", e.target.value.split(/\n\s*\n/))} /></Campo>
                 <div className="grid gap-2 sm:col-span-2">
                   <p className="text-xs font-medium text-cinza">Fotos ({r.pub.imagens.length})</p>
@@ -207,7 +262,7 @@ function Ficha({ inicial, novo, baseSite, siteHash, aoSalvar, aoFechar }: {
                     {r.pub.imagens.map((src, k) => (
                       <div key={k} className="group relative h-16 w-24 overflow-hidden rounded-sm bg-nevoa">
                         <img src={foto(src)} alt="" className="h-full w-full object-cover" />
-                        <button type="button" onClick={() => pub("imagens", r.pub.imagens.filter((_, j) => j !== k))} aria-label={`Remover foto ${k + 1}`} className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-tinta/80 text-white opacity-0 transition group-hover:opacity-100 focus:opacity-100"><IconeFechar width={12} height={12} /></button>
+                        <button type="button" onClick={() => removerFoto(k)} aria-label={`Remover foto ${k + 1}`} className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-tinta/80 text-white opacity-0 transition group-hover:opacity-100 focus:opacity-100"><IconeFechar width={12} height={12} /></button>
                       </div>
                     ))}
                     <label htmlFor="f-fotos" className="grid h-16 w-24 cursor-pointer place-items-center rounded-sm border border-dashed border-mar text-xs font-medium text-mar hover:bg-nevoa">+ Fotos
@@ -221,11 +276,20 @@ function Ficha({ inicial, novo, baseSite, siteHash, aoSalvar, aoFechar }: {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 border-t border-linha px-5 py-3 md:px-8 md:py-4">
-          {erro ? <p className="basis-full text-sm text-rose-700 sm:basis-auto sm:flex-1" role="alert">{erro}</p> : (
+          {!novo && (confirmarExclusao ? (
+            <span className="flex basis-full items-center gap-2 text-sm sm:basis-auto">
+              <span className="text-rose-700">Excluir de vez, com as fotos?</span>
+              <button type="button" onClick={excluir} className="rounded-full bg-rose-700 px-4 py-2 text-xs font-semibold text-white">Sim, excluir</button>
+              <button type="button" onClick={() => setConfirmarExclusao(false)} className="text-xs underline">Não</button>
+            </span>
+          ) : (
+            <button type="button" onClick={() => setConfirmarExclusao(true)} className="text-xs font-medium text-rose-700 underline">Excluir imóvel</button>
+          ))}
+          {ocupado ? <p className="basis-full text-sm text-mar sm:basis-auto sm:flex-1" role="status">{ocupado}</p> : erro ? <p className="basis-full text-sm text-rose-700 sm:basis-auto sm:flex-1" role="alert">{erro}</p> : (
             <p className="basis-full text-xs text-cinza sm:basis-auto sm:flex-1">{novo ? "O imóvel novo aparece no site depois de salvo." : <a href={linkSite} target="_blank" rel="noopener" className="text-mar underline">Ver anúncio no site</a>}</p>
           )}
           <button type="button" onClick={aoFechar} className="flex-1 rounded-full border border-tinta/25 px-6 py-3 text-sm font-medium hover:border-tinta sm:flex-none">Cancelar</button>
-          <button type="button" onClick={salvar} className="flex-[2] rounded-full bg-tinta px-7 py-3 text-sm font-semibold text-white hover:bg-mar sm:flex-none">Salvar alterações</button>
+          <button type="button" onClick={salvar} disabled={!!ocupado} className="disabled:opacity-60 flex-[2] rounded-full bg-tinta px-7 py-3 text-sm font-semibold text-white hover:bg-mar sm:flex-none">Salvar alterações</button>
         </div>
       </div>
     </div>
@@ -243,9 +307,14 @@ function Tile({ rotulo, valor, destaque }: { rotulo: string; valor: number; dest
 
 // ---------- Painel ----------
 // siteHash: na prévia, o site é um arquivo único com navegação por # (ex.: base#slug).
-export function PainelApp({ imoveis, privados, baseSite, siteHash }: { imoveis: Imovel[]; privados: Record<string, DadosPrivados>; baseSite: string; siteHash?: boolean }) {
-  const inicial = useMemo<Registro[]>(() => imoveis.map((pub) => ({ pub, priv: privados[pub.ref] })).filter((r) => r.priv), [imoveis, privados]);
-  const [usuario, setUsuario] = useState("");
+export function PainelApp({ imoveis = [], privados = {}, baseSite, siteHash, servidor }: {
+  imoveis?: Imovel[]; privados?: Record<string, DadosPrivados>; baseSite: string; siteHash?: boolean; servidor?: DadosServidor;
+}) {
+  const inicial = useMemo<Registro[]>(
+    () => servidor?.registros ?? imoveis.map((pub) => ({ pub, priv: privados[pub.ref] })).filter((r) => r.priv),
+    [servidor, imoveis, privados],
+  );
+  const [usuario, setUsuario] = useState(servidor?.usuario ?? "");
   const [lista, setLista] = useState<Registro[]>(inicial);
   const [busca, setBusca] = useState("");
   const [status, setStatus] = useState("");
@@ -254,16 +323,18 @@ export function PainelApp({ imoveis, privados, baseSite, siteHash }: { imoveis: 
   const [aviso, setAviso] = useState("");
 
   useEffect(() => {
+    if (servidor) return;
     try {
       const salvo = localStorage.getItem(CHAVE_LOCAL);
       // eslint-disable-next-line react-hooks/set-state-in-effect
       if (salvo) setLista(JSON.parse(salvo));
       if (sessionStorage.getItem(CHAVE_LOCAL + "-login")) setUsuario(sessionStorage.getItem(CHAVE_LOCAL + "-login") || "");
     } catch {}
-  }, []);
+  }, [servidor]);
 
   function guardar(nova: Registro[]) {
     setLista(nova);
+    if (servidor) return;
     try { localStorage.setItem(CHAVE_LOCAL, JSON.stringify(nova)); } catch {}
   }
 
@@ -272,6 +343,9 @@ export function PainelApp({ imoveis, privados, baseSite, siteHash }: { imoveis: 
     try { sessionStorage.setItem(CHAVE_LOCAL + "-login", email); } catch {}
   }
   function sair() {
+    // Sair da Cloudflare Access (endereço da Cloudflare, não é uma página do Next).
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    if (servidor) { window.location.href = "/cdn-cgi/access/logout"; return; }
     setUsuario("");
     try { sessionStorage.removeItem(CHAVE_LOCAL + "-login"); } catch {}
   }
@@ -298,18 +372,50 @@ export function PainelApp({ imoveis, privados, baseSite, siteHash }: { imoveis: 
     setAberto({
       novo: true,
       r: {
-        pub: { slug: `novo-${ref.toLowerCase()}`, ref, titulo: "", tipo: "Apartamento", finalidade: "venda", cidade: "Santos", bairro: "", preco: 0, area: 0, dormitorios: 0, suites: 0, banheiros: 0, vagas: 0, distanciaPraia: 0, vistaMar: false, destaque: false, resumo: "", descricao: [], caracteristicas: [], lazer: [], imagens: [] },
+        pub: { slug: `novo-${ref.toLowerCase()}`, ref, titulo: "", tipo: "Apartamento", finalidade: "venda", cidade: "Santos", bairro: "", preco: 0, area: 0, dormitorios: 0, suites: 0, banheiros: 0, vagas: 0, distanciaPraia: 0, vistaMar: false, destaque: true, resumo: "", descricao: [], caracteristicas: [], lazer: [], imagens: [] },
         priv: { status: "Disponível", endereco: "", complemento: "", cep: "", proprietario: "", telefone: "", email: "", chaves: "Com o corretor", chavesObs: "", comissao: "6%", exclusividade: false, exclusividadeAte: "", captadoEm: new Date().toISOString().slice(0, 10), observacoes: "" },
       },
     });
   }
 
-  function salvar(r: Registro) {
-    const existe = lista.some((x) => x.pub.ref === r.pub.ref);
-    guardar(existe ? lista.map((x) => (x.pub.ref === r.pub.ref ? r : x)) : [r, ...lista]);
+  function avisar(t: string) {
+    setAviso(t);
+    setTimeout(() => setAviso(""), 3500);
+  }
+
+  async function salvar(r: Registro): Promise<string | null> {
+    let salvo = r;
+    if (servidor) {
+      try {
+        const resp = await fetch("/api/painel/imoveis/", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(r) });
+        const json = (await resp.json()) as { registro?: Registro; erro?: string };
+        if (resp.status === 401) return "Sua sessão expirou. Recarregue a página para entrar de novo.";
+        if (!resp.ok || !json.registro) return json.erro ?? "Não foi possível salvar.";
+        salvo = json.registro;
+      } catch {
+        return "Não foi possível salvar. Verifique a internet e tente de novo.";
+      }
+    }
+    const existe = lista.some((x) => x.pub.ref === salvo.pub.ref);
+    guardar(existe ? lista.map((x) => (x.pub.ref === salvo.pub.ref ? salvo : x)) : [salvo, ...lista]);
     setAberto(null);
-    setAviso(existe ? `Ref ${r.pub.ref} atualizado.` : `Ref ${r.pub.ref} cadastrado.`);
-    setTimeout(() => setAviso(""), 3000);
+    avisar(existe ? `Ref ${salvo.pub.ref} atualizado.` : `Ref ${salvo.pub.ref} cadastrado.`);
+    return null;
+  }
+
+  async function excluir(r: Registro): Promise<string | null> {
+    if (servidor) {
+      try {
+        const resp = await fetch(`/api/painel/imoveis/?ref=${encodeURIComponent(r.pub.ref)}`, { method: "DELETE" });
+        if (!resp.ok) return "Não foi possível excluir.";
+      } catch {
+        return "Não foi possível excluir. Verifique a internet e tente de novo.";
+      }
+    }
+    guardar(lista.filter((x) => x.pub.ref !== r.pub.ref));
+    setAberto(null);
+    avisar(`Ref ${r.pub.ref} excluído.`);
+    return null;
   }
 
   if (!usuario) return <Login aoEntrar={entrar} />;
@@ -428,12 +534,17 @@ export function PainelApp({ imoveis, privados, baseSite, siteHash }: { imoveis: 
 
         {filtrada.length === 0 && (<p className="mt-6 rounded-lg border border-dashed border-linha p-10 text-center text-cinza">Nenhum imóvel encontrado com esses filtros.</p>)}
 
-        <p className="mt-10 rounded-lg bg-latao/15 p-4 text-xs leading-relaxed text-tinta/80">
+        {servidor && (
+          <p className="mt-10 text-xs text-cinza">
+            Fotos enviadas: {mb(servidor.bytesFotos)} MB de {mb(LIMITE_FOTOS)} MB disponíveis no plano gratuito. Cada novo login no painel gera um aviso no seu e-mail.
+          </p>
+        )}
+        {!servidor && <p className="mt-10 rounded-lg bg-latao/15 p-4 text-xs leading-relaxed text-tinta/80">
           <strong>Protótipo com dados fictícios.</strong> As alterações ficam salvas apenas neste navegador. Na versão final, os dados ficam no banco da sua conta Cloudflare e o acesso é protegido por login.
-        </p>
+        </p>}
       </main>
 
-      {aberto && <Ficha inicial={aberto.r} novo={aberto.novo} baseSite={baseSite} siteHash={siteHash} aoSalvar={salvar} aoFechar={() => setAberto(null)} />}
+      {aberto && <Ficha inicial={aberto.r} novo={aberto.novo} baseSite={baseSite} siteHash={siteHash} servidor={!!servidor} aoSalvar={salvar} aoExcluir={excluir} aoFechar={() => setAberto(null)} />}
       {aviso && (<div role="status" className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-full bg-tinta px-5 py-3 text-sm font-medium text-white shadow-lg">{aviso}</div>)}
     </div>
   );

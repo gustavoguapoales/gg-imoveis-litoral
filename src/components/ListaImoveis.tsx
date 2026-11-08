@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
-import { cidades, imoveis, tipos } from "@/data/imoveis";
+import { cidades, tipos, type Imovel } from "@/data/imoveis";
 import { CardImovel } from "./CardImovel";
 import { exemploValor, FINALIDADES } from "./BuscaRapida";
 import { CampoValor } from "./CampoValor";
@@ -19,7 +19,7 @@ const sel = "w-full appearance-none rounded-sm border border-linha bg-papel px-3
 type Filtros = { finalidade: string; cidade: string; tipo: string; dorm: string; preco: string; vista: string; ordem: string };
 const SEM_FILTROS: Filtros = { finalidade: "", cidade: "", tipo: "", dorm: "", preco: "", vista: "", ordem: "" };
 
-export function ListaImoveis() {
+export function ListaImoveis({ imoveis }: { imoveis: Imovel[] }) {
   const router = useRouter();
   const params = useSearchParams();
   const f = {
@@ -57,7 +57,7 @@ export function ListaImoveis() {
     if (f.ordem === "maior") r.sort((a, b) => b.preco - a.preco);
     if (f.ordem === "praia") r.sort((a, b) => a.distanciaPraia - b.distanciaPraia);
     return r;
-  }, [f.finalidade, f.cidade, f.tipo, f.dorm, f.preco, f.vista, f.ordem]);
+  }, [imoveis, f.finalidade, f.cidade, f.tipo, f.dorm, f.preco, f.vista, f.ordem]);
 
   const limpar = () => router.replace("/imoveis/", { scroll: false });
 
@@ -67,13 +67,13 @@ export function ListaImoveis() {
 }
 
 // Versão sem filtros, usada no HTML pré-renderizado (todos os imóveis visíveis para o Google).
-export function ListaImoveisEstatica() {
+export function ListaImoveisEstatica({ imoveis }: { imoveis: Imovel[] }) {
   return <ListaVisual f={SEM_FILTROS} lista={imoveis} ativos={0} definir={() => {}} limpar={() => {}} />;
 }
 
 function ListaVisual({ f, lista, ativos, definir, limpar }: {
   f: Filtros;
-  lista: typeof imoveis;
+  lista: Imovel[];
   ativos: number;
   definir: (chave: keyof Filtros, valor: string) => void;
   limpar: () => void;

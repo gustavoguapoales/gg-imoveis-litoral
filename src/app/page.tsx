@@ -2,7 +2,8 @@ import Link from "next/link";
 import { BuscaRapida } from "@/components/BuscaRapida";
 import { CardImovel } from "@/components/CardImovel";
 import { IconeCheck, IconeSeta, IconeWhatsApp } from "@/components/Icones";
-import { cidades, imoveis } from "@/data/imoveis";
+import { cidades } from "@/data/imoveis";
+import { listarPublicos } from "@/lib/banco";
 import { linkWhatsApp } from "@/lib/site";
 
 const SERVICOS = [
@@ -19,7 +20,11 @@ const ETAPAS = [
   { titulo: "Negociação e escritura", texto: "Cuido da proposta, do contrato e da documentação até a entrega das chaves." },
 ];
 
-export default function Inicio() {
+export const dynamic = "force-dynamic";
+
+export default async function Inicio() {
+  const imoveis = await listarPublicos();
+  // Imóveis marcados como destaque primeiro, do mais recente para o mais antigo (o banco já vem nessa ordem).
   const destaques = [...imoveis].sort((a, b) => Number(b.destaque) - Number(a.destaque)).slice(0, 6);
 
   return (

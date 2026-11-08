@@ -6,6 +6,7 @@ import { Rodape } from "@/components/Rodape";
 import { BotaoWhatsFlutuante } from "@/components/BotaoWhatsFlutuante";
 import { Chatbot } from "@/components/Chatbot";
 import { montarDadosChat } from "@/lib/chatbot-dados";
+import { listarPublicos } from "@/lib/banco";
 import { SITE } from "@/lib/site";
 import { SomenteSite } from "@/components/SomenteSite";
 
@@ -34,7 +35,11 @@ const jsonLd = {
   address: { "@type": "PostalAddress", addressRegion: "SP", addressCountry: "BR" },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+// Todas as páginas leem o banco a cada visita (o assistente e os imóveis ficam sempre atualizados).
+export const dynamic = "force-dynamic";
+
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const imoveis = await listarPublicos();
   return (
     <html lang="pt-BR" className={`${bodoni.variable} ${albert.variable} ${plex.variable}`}>
       <body className="min-h-screen flex flex-col">
@@ -44,7 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SomenteSite>
           <Rodape />
           <BotaoWhatsFlutuante />
-          <Chatbot dados={montarDadosChat()} />
+          <Chatbot dados={montarDadosChat(imoveis)} />
         </SomenteSite>
       </body>
     </html>
