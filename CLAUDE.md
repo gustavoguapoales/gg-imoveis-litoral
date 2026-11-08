@@ -4,6 +4,7 @@ Site e painel do corretor **Gustavo** (gustavo.guapo70@gmail.com), CRECI-SP 3232
 WhatsApp (13) 99777-1730. Atende Santos, São Vicente, Praia Grande, Guarujá, Mongaguá e Itanhaém.
 
 ## Como trabalhar com o Gustavo
+- **No início de toda sessão:** levar clientes e proprietários pendentes para as planilhas (ver "Planilhas" abaixo) e avisar quantos entraram.
 - Falar **sempre em português**, de forma simples: ele não é técnico.
 - Ele quer que **eu faça tudo** (Cloudflare, GitHub, publicação) e só aprove o resultado.
 - **Nada pode gerar mensalidade:** manter tudo no plano gratuito e avisar antes de qualquer custo.
