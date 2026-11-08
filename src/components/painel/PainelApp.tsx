@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 // PROTÓTIPO do painel do corretor. Sem servidor: os dados vêm de exemplos e as alterações
-// ficam só neste navegador. Na versão final: login pela Cloudflare Access e dados no Cloudflare D1.
+// ficam só neste navegador. A versão real (modo servidor) usa senha e o banco Cloudflare D1.
 
 import { useEffect, useMemo, useState } from "react";
 import type { Cidade, Finalidade, Imovel, Tipo } from "@/data/imoveis";
@@ -343,9 +343,9 @@ export function PainelApp({ imoveis = [], privados = {}, baseSite, siteHash, ser
     try { sessionStorage.setItem(CHAVE_LOCAL + "-login", email); } catch {}
   }
   function sair() {
-    // Sair da Cloudflare Access (endereço da Cloudflare, não é uma página do Next).
+    // Rota do servidor que apaga o cookie de sessão (não é uma página do Next).
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-    if (servidor) { window.location.href = "/cdn-cgi/access/logout"; return; }
+    if (servidor) { window.location.href = "/api/painel/sair/"; return; }
     setUsuario("");
     try { sessionStorage.removeItem(CHAVE_LOCAL + "-login"); } catch {}
   }
@@ -389,7 +389,7 @@ export function PainelApp({ imoveis = [], privados = {}, baseSite, siteHash, ser
       try {
         const resp = await fetch("/api/painel/imoveis/", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(r) });
         const json = (await resp.json()) as { registro?: Registro; erro?: string };
-        if (resp.status === 401) return "Sua sessão expirou. Recarregue a página para entrar de novo.";
+        if (resp.status === 401) return "Sua sessão expirou. Recarregue a página e digite a senha de novo.";
         if (!resp.ok || !json.registro) return json.erro ?? "Não foi possível salvar.";
         salvo = json.registro;
       } catch {

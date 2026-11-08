@@ -28,9 +28,8 @@
   // Aviso de login no painel (só pode enviar para este endereço verificado).
   "send_email": [{ "name": "EMAIL", "destination_address": "gustavo.guapo70@gmail.com" }],
   "vars": {
-    // Equipe da Cloudflare Zero Trust e identificador do app do painel (preenchido após criar o app).
-    "ACCESS_EQUIPE": "still-cake-eaf3",
-    "ACCESS_AUD": "aae7b86cd65deb8ca9e4ad4dc66bb3c331c5563f0cf2c5a2616fa30f31ad9f8d",
+    // E-mail que recebe o aviso de login. A senha (hash) e a chave das sessões são segredos
+    // guardados na Cloudflare (PAINEL_SENHA_HASH e SESSAO_CHAVE), nunca neste arquivo.
     "PAINEL_EMAIL": "gustavo.guapo70@gmail.com"
   },
   "observability": { "enabled": false }
