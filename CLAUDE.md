@@ -24,6 +24,12 @@ WhatsApp (13) 99777-1730. Atende Santos, São Vicente, Praia Grande, Guarujá, M
   bloqueio após 5 erros, aviso por e-mail a cada login (binding `EMAIL`, remetente painel@ggimoveislitoral.com).
 - **E-mail:** contato@ggimoveislitoral.com encaminha para o Gmail (Email Routing). SPF, DKIM e DMARC configurados.
 - **Google:** `SITE.indexar = false` em `src/lib/site.ts` (noindex) enquanto houver imóveis de exemplo.
+- **Planilhas (Google Drive, pasta "GG Imóveis Litoral"):**
+  "Clientes GG Imóveis" `1QVdFU7IFNaDK6OwcOaUpagA3KC7iWiqm0mHRckiokZE` (aba `Clientes`, colunas A–O) e
+  "Proprietários GG Imóveis" `13tanY-Wfm-LWV1PNmodfOssQ7g4s7zR-ybcctI9RRb0` (aba `Proprietários`, A–S, 1 linha por Ref).
+  O site grava no D1 (`clientes` e `proprietarios`, `sincronizado=0`; cliente também gera e-mail na hora);
+  a tarefa agendada de hora em hora roda `node scripts/planilhas/sincronizar.mjs pendentes`, grava nas planilhas
+  pelo conector Google Sheets e depois `... marcar <arquivo>`.
 - **Assistente do site:** `src/lib/chatbot.ts` (lógica) e `src/lib/chatbot-dados.ts` (respostas). Sem IA paga.
 
 ## Ferramentas desta sessão na nuvem
