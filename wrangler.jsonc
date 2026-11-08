@@ -2,8 +2,6 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "gg-imoveis-litoral",
   "main": ".open-next/worker.js",
-  // A Cloudflare roda `npx wrangler deploy`; antes disso, este comando gera o Worker com o OpenNext.
-  "build": { "command": "npx opennextjs-cloudflare build" },
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {

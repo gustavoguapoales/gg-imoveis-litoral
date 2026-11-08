@@ -12,12 +12,12 @@ Site da GG Imóveis Litoral: compra, venda e aluguel de imóveis em Santos, São
 npm install
 npm run dev                                   # desenvolvimento em http://localhost:3000
 npx wrangler d1 migrations apply gg-imoveis --local   # cria o banco local
-npx wrangler dev                              # gera o Worker e testa como na Cloudflare (porta 8787)
+npx opennextjs-cloudflare build && npx wrangler dev   # testa como na Cloudflare (porta 8787)
 ```
 Para testar o painel no computador, crie `.dev.vars` com `ACESSO_LOCAL=liberado` (nunca vai para o GitHub).
 
 ## Publicação na Cloudflare
-A Cloudflare roda `npm run build` e depois `npx wrangler deploy`; o `wrangler.jsonc` gera o Worker com o OpenNext.
+Na Cloudflare (Workers Builds): build `npx opennextjs-cloudflare build`, deploy `npx opennextjs-cloudflare deploy`.
 Cada push na branch `main` publica o site. Mudanças no banco: `npx wrangler d1 migrations apply gg-imoveis --remote`.
 
 ## Onde editar
