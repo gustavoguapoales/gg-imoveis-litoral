@@ -20,7 +20,7 @@ export async function ambiente() {
 export async function listarPublicos(): Promise<Imovel[]> {
   const { DB } = await ambiente();
   const r = await DB.prepare(
-    `SELECT publico FROM imoveis WHERE status IN (${NO_SITE.map(() => "?").join(",")}) ORDER BY ordem, criado_em`,
+    `SELECT publico FROM imoveis WHERE status IN (${NO_SITE.map(() => "?").join(",")}) ORDER BY criado_em DESC, ordem`, // mais recentes primeiro
   ).bind(...NO_SITE).all<{ publico: string }>();
   return r.results.map((l) => JSON.parse(l.publico) as Imovel);
 }
@@ -36,7 +36,7 @@ export async function obterPublico(slug: string): Promise<Imovel | null> {
 
 export async function listarTodos(): Promise<Registro[]> {
   const { DB } = await ambiente();
-  const r = await DB.prepare("SELECT status, publico, privado FROM imoveis ORDER BY ordem, criado_em")
+  const r = await DB.prepare("SELECT status, publico, privado FROM imoveis ORDER BY criado_em DESC, ordem")
     .all<{ status: StatusImovel; publico: string; privado: string }>();
   return r.results.map((l) => ({ pub: JSON.parse(l.publico), priv: { ...JSON.parse(l.privado), status: l.status } }));
 }

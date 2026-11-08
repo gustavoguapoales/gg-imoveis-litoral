@@ -253,7 +253,8 @@ function Ficha({ inicial, novo, baseSite, siteHash, servidor, aoSalvar, aoExclui
                     <Campo key={k} id={`f-${k}`} rotulo={rot}><input id={`f-${k}`} inputMode="numeric" className={inp} value={String(r.pub[k] ?? "")} onChange={(e) => pub(k, num(e.target.value))} /></Campo>
                   ))}
                 </div>
-                <label htmlFor="f-vista" className="flex items-center gap-2 text-sm font-medium sm:col-span-2"><input id="f-vista" type="checkbox" className="h-4 w-4 accent-mar" checked={r.pub.vistaMar} onChange={(e) => pub("vistaMar", e.target.checked)} /> Vista para o mar</label>
+                <label htmlFor="f-vista" className="flex items-center gap-2 text-sm font-medium"><input id="f-vista" type="checkbox" className="h-4 w-4 accent-mar" checked={r.pub.vistaMar} onChange={(e) => pub("vistaMar", e.target.checked)} /> Vista para o mar</label>
+                <label htmlFor="f-destaque" className="flex items-center gap-2 text-sm font-medium"><input id="f-destaque" type="checkbox" className="h-4 w-4 accent-mar" checked={r.pub.destaque} onChange={(e) => pub("destaque", e.target.checked)} /> Destaque na página inicial</label>
                 <Campo id="f-desc" rotulo="Descrição" largo><textarea id="f-desc" rows={5} className={inp} value={r.pub.descricao.join("\n\n")} onChange={(e) => pub("descricao", e.target.value.split(/\n\s*\n/))} /></Campo>
                 <div className="grid gap-2 sm:col-span-2">
                   <p className="text-xs font-medium text-cinza">Fotos ({r.pub.imagens.length})</p>
@@ -371,7 +372,7 @@ export function PainelApp({ imoveis = [], privados = {}, baseSite, siteHash, ser
     setAberto({
       novo: true,
       r: {
-        pub: { slug: `novo-${ref.toLowerCase()}`, ref, titulo: "", tipo: "Apartamento", finalidade: "venda", cidade: "Santos", bairro: "", preco: 0, area: 0, dormitorios: 0, suites: 0, banheiros: 0, vagas: 0, distanciaPraia: 0, vistaMar: false, destaque: false, resumo: "", descricao: [], caracteristicas: [], lazer: [], imagens: [] },
+        pub: { slug: `novo-${ref.toLowerCase()}`, ref, titulo: "", tipo: "Apartamento", finalidade: "venda", cidade: "Santos", bairro: "", preco: 0, area: 0, dormitorios: 0, suites: 0, banheiros: 0, vagas: 0, distanciaPraia: 0, vistaMar: false, destaque: true, resumo: "", descricao: [], caracteristicas: [], lazer: [], imagens: [] },
         priv: { status: "Disponível", endereco: "", complemento: "", cep: "", proprietario: "", telefone: "", email: "", chaves: "Com o corretor", chavesObs: "", comissao: "6%", exclusividade: false, exclusividadeAte: "", captadoEm: new Date().toISOString().slice(0, 10), observacoes: "" },
       },
     });

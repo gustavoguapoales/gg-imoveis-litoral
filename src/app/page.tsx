@@ -24,6 +24,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Inicio() {
   const imoveis = await listarPublicos();
+  // Imóveis marcados como destaque primeiro, do mais recente para o mais antigo (o banco já vem nessa ordem).
   const destaques = [...imoveis].sort((a, b) => Number(b.destaque) - Number(a.destaque)).slice(0, 6);
 
   return (
