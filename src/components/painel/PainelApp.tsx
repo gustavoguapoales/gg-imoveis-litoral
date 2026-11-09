@@ -452,6 +452,7 @@ export function PainelApp({ imoveis = [], privados = {}, baseSite, siteHash, ser
           <img src={foto("/marca/logo-clara.png")} data-marca="logo-clara" alt="GG Imóveis Litoral" className="h-10 w-auto" />
           <span className="hidden border-l border-white/20 pl-4 text-sm font-medium sm:inline">Painel do corretor</span>
           <span className="hidden text-xs text-white/60 md:ml-auto md:inline">{usuario}</span>
+          {servidor && <a href="/painel/visitas/" className="ml-auto rounded-full bg-white/10 px-4 py-2 text-xs font-medium hover:bg-white/20 md:ml-0">Visitas e leads</a>}
           <a href={siteHash ? `${baseSite}#inicio` : `${baseSite}/`} target="_blank" rel="noopener" className="ml-auto rounded-full border border-white/25 px-4 py-2 text-xs font-medium hover:border-white md:ml-0">Ver site</a>
           <button type="button" onClick={sair} className="text-xs text-white/70 underline hover:text-white">Sair</button>
         </div>

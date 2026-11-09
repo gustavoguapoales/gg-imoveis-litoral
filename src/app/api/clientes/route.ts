@@ -38,8 +38,8 @@ export async function POST(req: Request) {
   const pagina = texto(d.pagina, 200);
 
   await env.DB.prepare(
-    "INSERT INTO clientes (nome, telefone, email, interesse, ref, imovel, bairro, cidade, valor, finalidade, mensagem, pagina, ip) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-  ).bind(nome, telefone, email, interesse, ref, imovel, bairro, cidade, valor, finalidade || texto(d.finalidade, 20), mensagem, pagina, ip).run();
+    "INSERT INTO clientes (nome, telefone, email, interesse, ref, imovel, bairro, cidade, valor, finalidade, mensagem, pagina, ip, sessao) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+  ).bind(nome, telefone, email, interesse, ref, imovel, bairro, cidade, valor, finalidade || texto(d.finalidade, 20), mensagem, pagina, ip, /^[a-z0-9-]{8,40}$/i.test(texto(d.sessao, 40)) ? texto(d.sessao, 40) : null).run();
 
   // Aviso na hora por e-mail (não bloqueia a resposta se falhar).
   try {

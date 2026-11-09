@@ -9,6 +9,7 @@ import { montarDadosChat } from "@/lib/chatbot-dados";
 import { listarPublicos } from "@/lib/banco";
 import { SITE } from "@/lib/site";
 import { SomenteSite } from "@/components/SomenteSite";
+import { Rastreador } from "@/components/Rastreador";
 
 const bodoni = Bodoni_Moda({ variable: "--font-bodoni", subsets: ["latin"], style: ["normal", "italic"], display: "swap" });
 const albert = Albert_Sans({ variable: "--font-albert", subsets: ["latin"], display: "swap" });
@@ -50,6 +51,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <Rodape />
           <BotaoWhatsFlutuante />
           <Chatbot dados={montarDadosChat(imoveis)} />
+          <Rastreador />
         </SomenteSite>
       </body>
     </html>
