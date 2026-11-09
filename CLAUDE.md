@@ -60,6 +60,9 @@ WhatsApp (13) 99777-1730. Atende Santos, São Vicente, Praia Grande, Guarujá, M
 
 ## Situação (atualizar ao final de cada sessão)
 - Site e painel reais no ar. Os 15 imóveis são **exemplos fictícios** e as fotos foram geradas por IA. Apagar quando entrarem os reais.
+- Captações do pai do Gustavo (construtor), casas TÉRREAS com piscina e área gourmet com churrasqueira:
+  projeto de **2 casas, R$ 450 mil cada** (fase final de obra; fotos reais + IA em `previa/divulgacao/2-casas-450mil/`) e
+  projeto de **4 casas, R$ 550 mil cada** (na fundação; drone + IA em `previa/divulgacao/4-casas-550mil/`). Faltam bairro, cidade e metragens.
 - Pendências: cadastrar imóveis reais; liberar o Google, o Search Console e o Perfil da Empresa;
   trocar a senha do painel, porque ela foi digitada no chat.
 - Ideias combinadas: qualificação de clientes antes do WhatsApp, planilhas por cliente (Google Sheets),
