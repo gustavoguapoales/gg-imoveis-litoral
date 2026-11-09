@@ -47,6 +47,14 @@ WhatsApp (13) 99777-1730. Atende Santos, São Vicente, Praia Grande, Guarujá, M
 - **Testar local:** `npx opennextjs-cloudflare build && npx wrangler dev` (com `.dev.vars` de teste; não versionado).
 - Mudanças no banco: nova migração em `migrations/` + `npx wrangler d1 migrations apply gg-imoveis --remote`.
 
+## Vídeos com IA (Higgsfield, conta nova do Gustavo, plano Iniciante)
+- Fluxo combinado: 1) gerar as IMAGENS primeiro (nano_banana_2_1, ~1,5 crédito) e mostrar ao Gustavo;
+  2) só depois de ele aprovar, animar as escolhidas (seedance_2_0_mini 5 s 720p sem áudio, ~5 créditos);
+  3) montar no ffmpeg com logo, legendas, aviso "imagem ilustrativa" e preço (modelo: `previa/divulgacao/4-casas-evolucao-ia.mp4`).
+- Pedir aprovação do gasto antes; teste custa 20–30 créditos. Casas do pai dele são TÉRREAS.
+- Enviar imagem ao Higgsfield: upload.higgsfield.ai é bloqueado; hospedar temporariamente no R2 em
+  `imoveis/GG-9999/<nome>.jpg` (servido em /midia/...), usar media_import_url e apagar depois. Resultados baixam de d8j0ntlcm91z4.cloudfront.net.
+
 ## Situação (atualizar ao final de cada sessão)
 - Site e painel reais no ar. Os 15 imóveis são **exemplos fictícios** e as fotos foram geradas por IA. Apagar quando entrarem os reais.
 - Pendências: cadastrar imóveis reais; liberar o Google, o Search Console e o Perfil da Empresa;
