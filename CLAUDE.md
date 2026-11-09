@@ -17,7 +17,7 @@ WhatsApp (13) 99777-1730. Atende Santos, São Vicente, Praia Grande, Guarujá, M
   (build `npx opennextjs-cloudflare build`, deploy `npx opennextjs-cloudflare deploy`). Leva ~2–4 min.
   Da sessão na nuvem **não dá** para rodar `wrangler deploy` (o proxy quebra o upload de arquivos); usar o push.
 - **Stack:** Next.js 16 + Tailwind + OpenNext no Cloudflare Workers.
-- **Banco D1** `gg-imoveis`: tabela `imoveis` (colunas `publico` e `privado` em JSON, `status`), `fotos`, `acessos`, `tentativas`.
+- **Banco D1** `gg-imoveis`: tabela `imoveis` (colunas `publico` e `privado` em JSON, `status`), `fotos`, `acessos`, `tentativas`, `clientes`, `proprietarios`, `visitas`.
   Status que aparecem no site: `Disponível` e `Reservado` (`src/data/privado-demo.ts` → `NO_SITE`).
   Imóvel novo nasce `Rascunho` até clicar em "Publicar no site".
 - **Fotos** enviadas pelo painel: R2 `gg-imoveis-fotos`, servidas em `/midia/...`. Trava de 8 GB.
@@ -31,6 +31,9 @@ WhatsApp (13) 99777-1730. Atende Santos, São Vicente, Praia Grande, Guarujá, M
   O site grava no D1 (`clientes` e `proprietarios`, `sincronizado=0`; cliente também gera e-mail na hora);
   para levar às planilhas: rodar `node scripts/planilhas/sincronizar.mjs pendentes` numa sessão, gravar
   pelo conector Google Sheets e depois `... marcar <arquivo>` (falta automação: tarefa agendada sem conector não funciona).
+- **Visitas e leads** (`/painel/visitas`): tabela `visitas` (anônima, sem IP), gravada por `src/components/Rastreador.tsx` → `/api/visita`;
+  origem em `src/lib/origem.ts` (links com `?origem=qr-...` ou `utm_*`); cidade vem do `cf` da Cloudflare; `clientes.sessao` liga lead à visita.
+  Robôs e navegadores headless são ignorados (para testar com Playwright, use um userAgent normal).
 - **Assistente do site:** `src/lib/chatbot.ts` (lógica) e `src/lib/chatbot-dados.ts` (respostas). Sem IA paga.
 
 ## Ferramentas desta sessão na nuvem
