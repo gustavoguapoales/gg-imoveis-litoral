@@ -179,6 +179,15 @@ function Ficha({ inicial, novo, baseSite, siteHash, servidor, aoSalvar, aoExclui
     if (falha) setErro(falha);
   }
 
+  // Muda a ordem das fotos. A primeira é a capa do anúncio (aparece na lista e no destaque).
+  function moverFoto(de: number, para: number) {
+    if (para < 0 || para >= r.pub.imagens.length || de === para) return;
+    const lista = [...r.pub.imagens];
+    const [item] = lista.splice(de, 1);
+    lista.splice(para, 0, item);
+    pub("imagens", lista);
+  }
+
   function removerFoto(k: number) {
     const src = r.pub.imagens[k];
     pub("imagens", r.pub.imagens.filter((_, j) => j !== k));
@@ -262,15 +271,25 @@ function Ficha({ inicial, novo, baseSite, siteHash, servidor, aoSalvar, aoExclui
                 <label htmlFor="f-destaque" className="flex items-center gap-2 text-sm font-medium"><input id="f-destaque" type="checkbox" className="h-4 w-4 accent-mar" checked={r.pub.destaque} onChange={(e) => pub("destaque", e.target.checked)} /> Destaque na página inicial</label>
                 <Campo id="f-desc" rotulo="Descrição" largo><textarea id="f-desc" rows={5} className={inp} value={r.pub.descricao.join("\n\n")} onChange={(e) => pub("descricao", e.target.value.split(/\n\s*\n/))} /></Campo>
                 <div className="grid gap-2 sm:col-span-2">
-                  <p className="text-xs font-medium text-cinza">Fotos ({r.pub.imagens.length})</p>
+                  <p className="text-xs font-medium text-cinza">Fotos ({r.pub.imagens.length}) · a 1ª é a capa. Use as setas ou arraste para mudar a ordem.</p>
                   <div className="flex flex-wrap gap-2">
                     {r.pub.imagens.map((src, k) => (
-                      <div key={k} className="group relative h-16 w-24 overflow-hidden rounded-sm bg-nevoa">
-                        <img src={foto(src)} alt="" className="h-full w-full object-cover" />
-                        <button type="button" onClick={() => removerFoto(k)} aria-label={`Remover foto ${k + 1}`} className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-tinta/80 text-white opacity-0 transition group-hover:opacity-100 focus:opacity-100"><IconeFechar width={12} height={12} /></button>
+                      <div key={src.slice(-60) + k} draggable
+                        onDragStart={(e) => { e.dataTransfer.setData("text/plain", String(k)); e.dataTransfer.effectAllowed = "move"; }}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => { e.preventDefault(); moverFoto(Number(e.dataTransfer.getData("text/plain")), k); }}
+                        className={`group relative h-24 w-32 cursor-grab overflow-hidden rounded-sm bg-nevoa active:cursor-grabbing ${k === 0 ? "ring-2 ring-latao" : ""}`}>
+                        <img src={foto(src)} alt="" draggable={false} className="h-full w-full object-cover" />
+                        <span className={`absolute left-1 top-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${k === 0 ? "bg-latao text-tinta" : "bg-tinta/70 text-white"}`}>{k === 0 ? "Capa" : k + 1}</span>
+                        <button type="button" onClick={() => removerFoto(k)} aria-label={`Remover foto ${k + 1}`} className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-tinta/80 text-white"><IconeFechar width={12} height={12} /></button>
+                        <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-tinta/70 px-1 py-0.5 text-white">
+                          <button type="button" onClick={() => moverFoto(k, k - 1)} disabled={k === 0} aria-label={`Mover foto ${k + 1} para a esquerda`} className="grid h-6 w-6 place-items-center rounded-full text-sm hover:bg-white/20 disabled:opacity-30">‹</button>
+                          {k > 0 && <button type="button" onClick={() => moverFoto(k, 0)} className="rounded-full px-1.5 text-[10px] font-semibold hover:bg-white/20">Tornar capa</button>}
+                          <button type="button" onClick={() => moverFoto(k, k + 1)} disabled={k === r.pub.imagens.length - 1} aria-label={`Mover foto ${k + 1} para a direita`} className="grid h-6 w-6 place-items-center rounded-full text-sm hover:bg-white/20 disabled:opacity-30">›</button>
+                        </div>
                       </div>
                     ))}
-                    <label htmlFor="f-fotos" className="grid h-16 w-24 cursor-pointer place-items-center rounded-sm border border-dashed border-mar text-xs font-medium text-mar hover:bg-nevoa">+ Fotos
+                    <label htmlFor="f-fotos" className="grid h-24 w-32 cursor-pointer place-items-center rounded-sm border border-dashed border-mar text-xs font-medium text-mar hover:bg-nevoa">+ Fotos
                       <input id="f-fotos" type="file" accept="image/*" multiple className="sr-only" onChange={(e) => adicionarFotos(e.target.files)} />
                     </label>
                   </div>
