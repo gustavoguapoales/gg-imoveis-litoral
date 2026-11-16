@@ -29,6 +29,7 @@ export function validarRegistro(dados: unknown): Registro | string {
     dormitorios: numero(p.dormitorios, 50), suites: numero(p.suites, 50), banheiros: numero(p.banheiros, 50), vagas: numero(p.vagas, 50),
     distanciaPraia: numero(p.distanciaPraia, 100000), vistaMar: !!p.vistaMar, destaque: !!p.destaque,
     resumo: texto(p.resumo, 300), descricao: lista(p.descricao, 20, 3000), caracteristicas: lista(p.caracteristicas), lazer: lista(p.lazer), imagens,
+    ilustrativas: !!p.ilustrativas || undefined,
   };
   const priv: DadosPrivados = {
     status: q.status as DadosPrivados["status"], endereco: texto(q.endereco, 200), complemento: texto(q.complemento, 100), cep: texto(q.cep, 12),

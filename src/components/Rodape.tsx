@@ -53,7 +53,7 @@ export function Rodape() {
       <div className="border-t border-white/10">
         <div className="container-site flex flex-col gap-2 py-6 text-xs text-white/45 sm:flex-row sm:justify-between">
           <p>© {new Date().getFullYear()} {SITE.nome}. Todos os direitos reservados.</p>
-          <p>Protótipo: imóveis de exemplo e imagens ilustrativas geradas por IA.</p>
+          <p>Santos · São Vicente · Praia Grande · Guarujá · Mongaguá · Itanhaém</p>
         </div>
       </div>
     </footer>

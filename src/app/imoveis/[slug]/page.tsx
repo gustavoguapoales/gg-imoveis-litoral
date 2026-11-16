@@ -41,7 +41,7 @@ export default async function PaginaImovel({ params }: PageProps<"/imoveis/[slug
   };
 
   return (
-    <div className="pt-24 md:pt-28">
+    <div className="pb-20 pt-24 md:pt-28 lg:pb-0">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="container-site">
         <nav aria-label="Você está em" className="rotulo flex flex-wrap gap-2 py-5 text-cinza">
@@ -50,7 +50,7 @@ export default async function PaginaImovel({ params }: PageProps<"/imoveis/[slug
           <Link href={`/imoveis/?cidade=${i.cidade.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ /g, "-")}`} className="hover:text-tinta">{i.cidade}</Link> /
           <span className="text-tinta">Ref {i.ref}</span>
         </nav>
-        <Galeria imagens={i.imagens} titulo={i.titulo} />
+        <Galeria imagens={i.imagens} titulo={i.titulo} ilustrativas={i.ilustrativas} />
       </div>
 
       <div className="container-site grid gap-14 py-12 lg:grid-cols-[1fr_380px] lg:py-16">
@@ -74,25 +74,26 @@ export default async function PaginaImovel({ params }: PageProps<"/imoveis/[slug
 
           <section className="mt-12">
             <h2 className="font-display text-3xl">Sobre o imóvel</h2>
-            <div className="mt-5 max-w-[68ch] space-y-4 text-[1.05rem] leading-relaxed text-tinta/85">
-              {i.descricao.map((p) => (<p key={p.slice(0, 20)}>{p}</p>))}
+            <div className="mt-5 max-w-[68ch] space-y-4 whitespace-pre-line text-[1.05rem] leading-relaxed text-tinta/85">
+              {i.descricao.map((p, k) => (<p key={k}>{p}</p>))}
             </div>
+            {i.ilustrativas && <p className="mt-4 text-sm text-cinza">Algumas imagens são ilustrativas, com móveis e decoração sugeridos.</p>}
           </section>
 
-          <section className={`mt-12 grid gap-10 ${i.lazer.length ? "sm:grid-cols-2" : ""}`}>
-            <div>
+          {(i.caracteristicas.length > 0 || i.lazer.length > 0) && <section className={`mt-12 grid gap-10 ${i.lazer.length && i.caracteristicas.length ? "sm:grid-cols-2" : ""}`}>
+            {i.caracteristicas.length > 0 && <div>
               <h2 className="font-display text-2xl">Características</h2>
               <ul className="mt-5 space-y-2.5">
                 {i.caracteristicas.map((c) => (<li key={c} className="flex items-center gap-3"><IconeCheck className="text-mar" /> {c}</li>))}
               </ul>
-            </div>
+            </div>}
             {i.lazer.length > 0 && (<div>
               <h2 className="font-display text-2xl">Lazer do condomínio</h2>
               <ul className="mt-5 space-y-2.5">
                 {i.lazer.map((c) => (<li key={c} className="flex items-center gap-3"><IconeCheck className="text-mar" /> {c}</li>))}
               </ul>
             </div>)}
-          </section>
+          </section>}
 
           <section className="mt-12">
             <h2 className="font-display text-3xl">Localização</h2>
@@ -143,6 +144,15 @@ export default async function PaginaImovel({ params }: PageProps<"/imoveis/[slug
           </div>
         </section>
       )}
+
+      {/* Celular: barra fixa com preço e botão de interesse (pede nome e telefone antes do WhatsApp). */}
+      <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 border-t border-linha bg-papel/95 px-4 py-3 backdrop-blur lg:hidden" style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}>
+        <div className="min-w-0">
+          <p className="truncate text-xs text-cinza">{i.tipo} · {i.bairro}</p>
+          <p className="text-lg font-semibold tabular-nums">{precoImovel(i)}</p>
+        </div>
+        <BotaoInteresse refImovel={i.ref} titulo={i.titulo} mensagem={msgInteresse} rotulo="Consultar" className="flex shrink-0 items-center gap-2 rounded-full bg-whats px-5 py-3 text-sm font-medium text-white" />
+      </div>
     </div>
   );
 }

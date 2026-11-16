@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { IconeChevron, IconeFechar } from "./Icones";
 
-export function Galeria({ imagens, titulo }: { imagens: string[]; titulo: string }) {
+export function Galeria({ imagens, titulo, ilustrativas }: { imagens: string[]; titulo: string; ilustrativas?: boolean }) {
   const [atual, setAtual] = useState(0);
   const [tela, setTela] = useState(false);
   const [toque, setToque] = useState<number | null>(null);
@@ -35,7 +35,7 @@ export function Galeria({ imagens, titulo }: { imagens: string[]; titulo: string
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={imagens[atual]} alt={`${titulo}, foto ${atual + 1} de ${total}`} className="absolute inset-0 h-full w-full object-contain" />
           <span className="rotulo absolute bottom-3 left-3 rounded-sm bg-tinta/70 px-2.5 py-1 !text-[0.65rem] text-white">
-            {atual + 1} / {total} · Imagem ilustrativa
+            {atual + 1} / {total}{ilustrativas ? " · Algumas imagens são ilustrativas" : ""}
           </span>
         </button>
         {imagens.slice(1, 3).map((src, k) => (

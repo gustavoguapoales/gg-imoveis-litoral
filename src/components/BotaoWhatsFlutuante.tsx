@@ -1,7 +1,15 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import { linkWhatsApp } from "@/lib/site";
 import { IconeWhatsApp } from "./Icones";
 
+// Na página de um imóvel não aparece: lá o botão "Consultar" pede nome e telefone antes de abrir o WhatsApp.
+export const paginaDeImovel = (caminho: string | null) => /^\/imoveis\/[^/]+\/?$/.test(caminho ?? "");
+
 export function BotaoWhatsFlutuante() {
+  const caminho = usePathname();
+  if (paginaDeImovel(caminho)) return null;
   return (
     <a
       href={linkWhatsApp()}

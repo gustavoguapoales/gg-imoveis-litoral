@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { paginaDeImovel } from "./BotaoWhatsFlutuante";
 import { responder, type Contexto, type DadosChat, type Resposta } from "@/lib/chatbot";
 import { IconeChat, IconeEnviar, IconeFechar } from "./Icones";
 
@@ -50,6 +52,7 @@ function Balao({ m, aoSugerir }: { m: Mensagem; aoSugerir: (t: string) => void }
 }
 
 export function Chatbot({ dados }: { dados: DadosChat }) {
+  const imovel = paginaDeImovel(usePathname());
   const [aberto, setAberto] = useState(false);
   const [texto, setTexto] = useState("");
   const [msgs, setMsgs] = useState<Mensagem[]>([{ de: "bot", resposta: dados.boasVindas }]);
@@ -75,8 +78,8 @@ export function Chatbot({ dados }: { dados: DadosChat }) {
         onClick={() => setAberto((v) => !v)}
         aria-label={aberto ? "Fechar assistente" : "Abrir assistente virtual"}
         aria-expanded={aberto}
-        className="fixed z-30 flex h-14 min-w-14 items-center justify-center gap-2 rounded-full bg-tinta px-4 text-white sm:px-5 shadow-[0_10px_30px_-8px_rgba(4,34,43,0.6)] transition hover:bg-mar"
-        style={{ right: "calc(max(20px, env(safe-area-inset-right)) + 68px)", bottom: "max(20px, env(safe-area-inset-bottom))" }}
+        className={`fixed z-30 flex h-14 min-w-14 items-center justify-center gap-2 rounded-full bg-tinta px-4 text-white sm:px-5 shadow-[0_10px_30px_-8px_rgba(4,34,43,0.6)] transition hover:bg-mar ${imovel ? "bottom-[92px] lg:bottom-5" : ""}`}
+        style={imovel ? { right: "max(20px, env(safe-area-inset-right))" } : { right: "calc(max(20px, env(safe-area-inset-right)) + 68px)", bottom: "max(20px, env(safe-area-inset-bottom))" }}
       >
         <IconeChat width={22} height={22} />
         <span className="hidden text-sm font-medium sm:inline">Tire suas dúvidas</span>
@@ -87,7 +90,7 @@ export function Chatbot({ dados }: { dados: DadosChat }) {
         hidden={!aberto}
         aria-label="Assistente virtual"
         className="fixed z-40 flex h-[min(560px,calc(100dvh-120px))] w-[min(380px,calc(100vw-32px))] flex-col overflow-hidden rounded-lg border border-linha bg-papel shadow-[0_30px_70px_-20px_rgba(4,34,43,0.45)]"
-        style={{ right: "max(16px, env(safe-area-inset-right))", bottom: "calc(max(16px, env(safe-area-inset-bottom)) + 72px)" }}
+        style={{ right: "max(16px, env(safe-area-inset-right))", bottom: imovel ? "150px" : "calc(max(16px, env(safe-area-inset-bottom)) + 72px)" }}
       >
         <div className="flex items-center gap-3 bg-tinta px-4 py-3 text-white">
           {/* eslint-disable-next-line @next/next/no-img-element */}

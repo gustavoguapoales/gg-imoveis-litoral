@@ -269,6 +269,7 @@ function Ficha({ inicial, novo, baseSite, siteHash, servidor, aoSalvar, aoExclui
                 </div>
                 <label htmlFor="f-vista" className="flex items-center gap-2 text-sm font-medium"><input id="f-vista" type="checkbox" className="h-4 w-4 accent-mar" checked={r.pub.vistaMar} onChange={(e) => pub("vistaMar", e.target.checked)} /> Vista para o mar</label>
                 <label htmlFor="f-destaque" className="flex items-center gap-2 text-sm font-medium"><input id="f-destaque" type="checkbox" className="h-4 w-4 accent-mar" checked={r.pub.destaque} onChange={(e) => pub("destaque", e.target.checked)} /> Destaque na página inicial</label>
+                <label htmlFor="f-ilus" className="flex items-center gap-2 text-sm font-medium sm:col-span-2"><input id="f-ilus" type="checkbox" className="h-4 w-4 accent-mar" checked={!!r.pub.ilustrativas} onChange={(e) => pub("ilustrativas", e.target.checked)} /> Algumas fotos são ilustrativas (decoradas ou feitas com IA)</label>
                 <Campo id="f-desc" rotulo="Descrição" largo><textarea id="f-desc" rows={5} className={inp} value={r.pub.descricao.join("\n\n")} onChange={(e) => pub("descricao", e.target.value.split(/\n\s*\n/))} /></Campo>
                 <div className="grid gap-2 sm:col-span-2">
                   <p className="text-xs font-medium text-cinza">Fotos ({r.pub.imagens.length}) · a 1ª é a capa. Use as setas ou arraste para mudar a ordem.</p>

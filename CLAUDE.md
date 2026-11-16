@@ -24,7 +24,7 @@ WhatsApp (13) 99777-1730. Atende Santos, São Vicente, Praia Grande, Guarujá, M
 - **Painel** `/painel`: login por senha (hash em segredo `PAINEL_SENHA_HASH`, sessão `SESSAO_CHAVE`; segredos do Worker),
   bloqueio após 5 erros, aviso por e-mail a cada login (binding `EMAIL`, remetente painel@ggimoveislitoral.com).
 - **E-mail:** contato@ggimoveislitoral.com encaminha para o Gmail (Email Routing). SPF, DKIM e DMARC configurados.
-- **Google:** `SITE.indexar = false` em `src/lib/site.ts` (noindex) enquanto houver imóveis de exemplo.
+- **Google:** `SITE.indexar = true` desde 16/11/2026 (exemplos fora do site).
 - **Planilhas (Google Drive, pasta "GG Imóveis Litoral"):**
   "Clientes GG Imóveis" `1QVdFU7IFNaDK6OwcOaUpagA3KC7iWiqm0mHRckiokZE` (aba `Clientes`, colunas A–O) e
   "Proprietários GG Imóveis" `13tanY-Wfm-LWV1PNmodfOssQ7g4s7zR-ybcctI9RRb0` (aba `Proprietários`, A–S, 1 linha por Ref).
@@ -59,11 +59,12 @@ WhatsApp (13) 99777-1730. Atende Santos, São Vicente, Praia Grande, Guarujá, M
   `imoveis/GG-9999/<nome>.jpg` (servido em /midia/...), usar media_import_url e apagar depois. Resultados baixam de d8j0ntlcm91z4.cloudfront.net.
 
 ## Situação (atualizar ao final de cada sessão)
-- Site e painel reais no ar. Os 15 imóveis são **exemplos fictícios** e as fotos foram geradas por IA. Apagar quando entrarem os reais.
+- Site e painel reais no ar. Os 15 exemplos fictícios (GG-01xx) estão **Suspensos** (fora do site, ainda no painel). Reais: GG-0201 e GG-0202 (Itanhaém).
+- Anúncio com fotos de IA: marcar "Algumas fotos são ilustrativas" no painel (`pub.ilustrativas`) → aviso na galeria e na descrição.
 - Captações do pai do Gustavo (construtor), casas TÉRREAS com piscina e área gourmet com churrasqueira:
   projeto de **2 casas, R$ 450 mil cada** (fase final de obra; fotos reais + IA em `previa/divulgacao/2-casas-450mil/`) e
   projeto de **4 casas, R$ 550 mil cada** (na fundação; drone + IA em `previa/divulgacao/4-casas-550mil/`). Faltam bairro, cidade e metragens.
-- Pendências: cadastrar imóveis reais; liberar o Google, o Search Console e o Perfil da Empresa;
+- Pendências: Search Console e Perfil da Empresa no Google;
   trocar a senha do painel, porque ela foi digitada no chat.
 - Ideias combinadas: qualificação de clientes antes do WhatsApp, planilhas por cliente (Google Sheets),
   lembretes da faculdade (Google Agenda e Classroom pelo Gmail).

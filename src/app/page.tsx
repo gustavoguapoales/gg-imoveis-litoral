@@ -122,7 +122,7 @@ export default async function Inicio() {
                 <p className="mt-3 max-w-md text-white/80">{c.texto}</p>
                 <p className="mt-4 text-sm text-white/65">{c.bairros.join(" · ")}</p>
                 <span className="mt-6 flex items-center gap-2 text-sm font-medium text-[#ffd24d]">
-                  {qtd} {qtd === 1 ? "imóvel disponível" : "imóveis disponíveis"} <IconeSeta width={16} height={16} />
+                  {qtd === 0 ? "Consultar imóveis na região" : `${qtd} ${qtd === 1 ? "imóvel disponível" : "imóveis disponíveis"}`} <IconeSeta width={16} height={16} />
                 </span>
               </Link>
             );

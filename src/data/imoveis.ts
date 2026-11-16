@@ -29,6 +29,7 @@ export interface Imovel {
   caracteristicas: string[];
   lazer: string[];
   imagens: string[];
+  ilustrativas?: boolean; // alguma foto foi feita/decorada com IA: mostra o aviso no anúncio
 }
 
 const img = (n: string) => `/fotos/${n}.jpg`;

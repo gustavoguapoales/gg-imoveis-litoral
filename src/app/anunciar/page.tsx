@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { FormWhatsApp } from "@/components/FormWhatsApp";
 import { IconeArea, IconeBanho, IconeCama, IconeCheck, IconeVaga } from "@/components/Icones";
+import { listarPublicos } from "@/lib/banco";
+import { formatarPreco } from "@/lib/site";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Anuncie seu imóvel para vender ou alugar",
@@ -14,7 +18,9 @@ const ETAPAS = [
   { titulo: "Anúncio no ar", texto: "Fotos profissionais, anúncio aqui no site, nos portais e nas redes sociais." },
 ];
 
-export default function PaginaAnunciar() {
+export default async function PaginaAnunciar() {
+  // Mostra um anúncio de verdade do site como exemplo (o mais recente com foto).
+  const ex = (await listarPublicos()).find((i) => i.imagens.length > 0);
   return (
     <div className="pb-28 pt-32 md:pt-40">
       <div className="container-site grid gap-16 lg:grid-cols-[1fr_1.15fr]">
@@ -34,21 +40,21 @@ export default function PaginaAnunciar() {
             ))}
           </ol>
 
-          <div className="mt-12 max-w-md">
-            <p className="rotulo text-cinza">Exemplo de anúncio</p>
+          {ex && <div className="mt-12 max-w-md">
+            <p className="rotulo text-cinza">Veja como fica um anúncio</p>
             <div className="mt-3 overflow-hidden rounded-sm border border-linha bg-papel">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/fotos/varanda-gourmet.jpg" alt="" loading="lazy" className="aspect-[16/9] w-full object-cover" />
+              <img src={ex.imagens[0]} alt="" loading="lazy" className="aspect-[16/9] w-full object-cover" />
               <div className="p-5">
-                <p className="rotulo text-cinza">Aparecida · Santos</p>
-                <p className="mt-1 font-display text-xl">Apartamento com varanda gourmet</p>
+                <p className="rotulo text-cinza">{ex.bairro} · {ex.cidade}</p>
+                <a href={`/imoveis/${ex.slug}/`} className="mt-1 block font-display text-xl hover:text-mar">{ex.titulo}</a>
                 <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-cinza">
-                  <li className="flex items-center gap-1.5"><IconeArea width={16} height={16} /> 96 m²</li>
-                  <li className="flex items-center gap-1.5"><IconeCama width={16} height={16} /> 3 dorm.</li>
-                  <li className="flex items-center gap-1.5"><IconeBanho width={16} height={16} /> 2 banh.</li>
-                  <li className="flex items-center gap-1.5"><IconeVaga width={16} height={16} /> 2 vagas</li>
+                  <li className="flex items-center gap-1.5"><IconeArea width={16} height={16} /> {ex.area} m²</li>
+                  <li className="flex items-center gap-1.5"><IconeCama width={16} height={16} /> {ex.dormitorios} dorm.</li>
+                  <li className="flex items-center gap-1.5"><IconeBanho width={16} height={16} /> {ex.banheiros} banh.</li>
+                  <li className="flex items-center gap-1.5"><IconeVaga width={16} height={16} /> {ex.vagas} {ex.vagas === 1 ? "vaga" : "vagas"}</li>
                 </ul>
-                <p className="mt-3 text-lg font-semibold">R$ 890.000</p>
+                <p className="mt-3 text-lg font-semibold">{formatarPreco(ex.preco)}{ex.finalidade === "aluguel" ? "/mês" : ""}</p>
               </div>
             </div>
             <ul className="mt-5 space-y-2 text-sm">
@@ -56,7 +62,7 @@ export default function PaginaAnunciar() {
                 <li key={t} className="flex items-center gap-2"><IconeCheck className="text-mar" /> {t}</li>
               ))}
             </ul>
-          </div>
+          </div>}
         </div>
 
         <div className="self-start rounded-sm border border-linha bg-nevoa p-6 md:p-10">
