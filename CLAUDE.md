@@ -55,7 +55,7 @@ WhatsApp (13) 99777-1730. Atende Santos, São Vicente, Praia Grande, Guarujá, M
   `npx wrangler r2 object get gg-imoveis-fotos/albuns/<nome>/01.jpg --file x.jpg --remote`).
 - `mongagua-ap-unidade` (16 fotos do apto 2 dorm. de Mongaguá, já na ordem do anúncio GG-0203) e
   `mongagua-ap-condominio` (8 fotos: fachada, hall, salão de festas, garagens, varanda, lavanderia, cozinha).
-  `mongagua-ap47-unidade` (16 fotos do AP 47, vista mar, usado no GG-0204). Condomínio já usado em GG-0203 e GG-0204.
+  `mongagua-ap47-unidade` (16 fotos do AP 47, vista mar, usado no GG-0204), `mongagua-ap45-unidade` (16 fotos do AP 45, GG-0205). Condomínio usado em GG-0203, 0204 e 0205.
 - Para usar em outro imóvel: enviar CÓPIAS com chave nova `imoveis/<REF>/<uuid>.jpg` + linha na tabela `fotos`
   (nunca reaproveitar a mesma URL /midia de outro imóvel: excluir a foto no painel apaga o arquivo do R2).
 
