@@ -405,6 +405,19 @@ export function PainelApp({ imoveis = [], privados = {}, baseSite, siteHash, ser
     vencendo: lista.filter((r) => r.priv.exclusividade && diasAte(r.priv.exclusividadeAte) >= 0 && diasAte(r.priv.exclusividadeAte) <= 30).length,
   }), [lista]);
 
+  // Abre o imóvel com a versão mais recente do banco (evita salvar por cima de mudanças feitas em outra aba ou pelo Claude).
+  async function abrir(r: Registro) {
+    setAberto({ r, novo: false });
+    if (!servidor) return;
+    try {
+      const j = (await (await fetch("/api/painel/imoveis/", { cache: "no-store" })).json()) as { registros?: Registro[] };
+      if (!j.registros) return;
+      setLista(j.registros);
+      const novo = j.registros.find((x) => x.pub.ref === r.pub.ref);
+      if (novo) setAberto({ r: novo, novo: false });
+    } catch {}
+  }
+
   function novoImovel() {
     const maior = Math.max(...lista.map((r) => Number(r.pub.ref.replace(/\D/g, "")) || 0), 200);
     const ref = `GG-${String(maior + 1).padStart(4, "0")}`;
@@ -531,7 +544,7 @@ export function PainelApp({ imoveis = [], privados = {}, baseSite, siteHash, ser
             </thead>
             <tbody>
               {filtrada.map((r) => (
-                <tr key={r.pub.ref} className="cursor-pointer border-b border-linha last:border-0 hover:bg-nevoa/50" onClick={() => setAberto({ r, novo: false })}>
+                <tr key={r.pub.ref} className="cursor-pointer border-b border-linha last:border-0 hover:bg-nevoa/50" onClick={() => abrir(r)}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <img src={foto(r.pub.imagens[0] ?? "")} alt="" className="h-12 w-16 shrink-0 rounded-sm bg-nevoa object-cover" />
@@ -560,7 +573,7 @@ export function PainelApp({ imoveis = [], privados = {}, baseSite, siteHash, ser
         {/* Cartões (celular e tablet) */}
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:hidden">
           {filtrada.map((r) => (
-            <button key={r.pub.ref} type="button" onClick={() => setAberto({ r, novo: false })} className="flex w-full min-w-0 gap-3 rounded-lg border border-linha bg-papel p-3 text-left">
+            <button key={r.pub.ref} type="button" onClick={() => abrir(r)} className="flex w-full min-w-0 gap-3 rounded-lg border border-linha bg-papel p-3 text-left">
               <img src={foto(r.pub.imagens[0] ?? "")} alt="" className="h-20 w-20 shrink-0 rounded-sm bg-nevoa object-cover" />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
@@ -588,7 +601,7 @@ export function PainelApp({ imoveis = [], privados = {}, baseSite, siteHash, ser
         </p>}
       </main>
 
-      {aberto && <Ficha inicial={aberto.r} novo={aberto.novo} baseSite={baseSite} siteHash={siteHash} servidor={!!servidor} aoSalvar={salvar} aoExcluir={excluir} aoFechar={() => setAberto(null)} />}
+      {aberto && <Ficha key={JSON.stringify(aberto.r)} inicial={aberto.r} novo={aberto.novo} baseSite={baseSite} siteHash={siteHash} servidor={!!servidor} aoSalvar={salvar} aoExcluir={excluir} aoFechar={() => setAberto(null)} />}
       {aviso && (<div role="status" className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-full bg-tinta px-5 py-3 text-sm font-medium text-white shadow-lg">{aviso}</div>)}
     </div>
   );
