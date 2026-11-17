@@ -68,7 +68,7 @@ WhatsApp (13) 99777-1730. Atende Santos, São Vicente, Praia Grande, Guarujá, M
   `imoveis/GG-9999/<nome>.jpg` (servido em /midia/...), usar media_import_url e apagar depois. Resultados baixam de d8j0ntlcm91z4.cloudfront.net.
 
 ## Situação (atualizar ao final de cada sessão)
-- Site e painel reais no ar. Os 15 exemplos fictícios (GG-01xx) estão **Suspensos** (fora do site, ainda no painel). Reais: GG-0201 e GG-0202 (Itanhaém).
+- Site e painel reais no ar. Os 15 exemplos fictícios foram **excluídos** em 17/11/2026. Imóveis: GG-0201 e GG-0202 (casas, Itanhaém), GG-0203/0204/0205 (aptos, Mongaguá).
 - Anúncio com fotos de IA: marcar "Algumas fotos são ilustrativas" no painel (`pub.ilustrativas`) → aviso na galeria e na descrição.
 - Captações do pai do Gustavo (construtor), casas TÉRREAS com piscina e área gourmet com churrasqueira:
   projeto de **2 casas, R$ 450 mil cada** (fase final de obra; fotos reais + IA em `previa/divulgacao/2-casas-450mil/`) e
