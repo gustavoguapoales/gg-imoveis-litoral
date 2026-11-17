@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { BuscaRapida } from "@/components/BuscaRapida";
+import { Carrossel } from "@/components/Carrossel";
+import { Revelar } from "@/components/Revelar";
 import { CardImovel } from "@/components/CardImovel";
-import { IconeCheck, IconeSeta, IconeWhatsApp } from "@/components/Icones";
+import { IconeCheck, IconeChevron, IconeSeta, IconeWhatsApp } from "@/components/Icones";
 import { cidades } from "@/data/imoveis";
 import { listarPublicos } from "@/lib/banco";
-import { linkWhatsApp } from "@/lib/site";
+import { linkWhatsApp, SITE } from "@/lib/site";
 
 const SERVICOS = [
   { titulo: "Compra assistida", texto: "Seleciono imóveis de acordo com o seu perfil e acompanho cada visita, sem você perder tempo com opções que não servem." },
@@ -25,43 +27,87 @@ export const dynamic = "force-dynamic";
 export default async function Inicio() {
   const imoveis = await listarPublicos();
   // Imóveis marcados como destaque primeiro, do mais recente para o mais antigo (o banco já vem nessa ordem).
-  const destaques = [...imoveis].sort((a, b) => Number(b.destaque) - Number(a.destaque)).slice(0, 6);
+  const destaques = [...imoveis].sort((a, b) => Number(b.destaque) - Number(a.destaque)).slice(0, 12);
 
   return (
     <>
-      {/* HERO */}
-      <section className="relative isolate overflow-hidden bg-tinta">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/fotos/hero.jpg" alt="Orla do litoral paulista ao entardecer" className="absolute inset-0 -z-10 h-full w-full object-cover" />
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(4,34,43,0.55)_0%,rgba(4,34,43,0.15)_40%,rgba(4,34,43,0.85)_100%)] max-md:bg-[linear-gradient(180deg,rgba(4,34,43,0.7)_0%,rgba(4,34,43,0.45)_45%,rgba(4,34,43,0.9)_100%)]" />
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(4,34,43,0.55)_0%,rgba(4,34,43,0)_65%)]" />
-        <div className="container-site flex min-h-[640px] flex-col justify-end pb-14 pt-36 md:min-h-[760px] md:pb-20">
-          <p className="rotulo animate-surgir text-white/75">Santos · São Vicente · Praia Grande · Guarujá · Mongaguá · Itanhaém</p>
-          <h1 className="mt-5 max-w-4xl animate-surgir font-display text-[2.7rem] leading-[1.05] text-white [animation-delay:120ms] sm:text-6xl md:text-[5.2rem]">
-            Morar perto do mar, com quem conhece <em className="text-[#ffd24d]">cada quadra</em>.
-          </h1>
-          <p className="mt-6 max-w-xl animate-surgir text-lg leading-relaxed text-white/80 [animation-delay:240ms]">
-            Compra, venda e aluguel de apartamentos, casas e salas comerciais no litoral paulista, com atendimento direto do corretor.
+      {/* ABERTURA: vídeo do litoral, logo, contato e busca */}
+      <section className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-tinta">
+        <video
+          className="absolute inset-0 -z-10 h-full w-full object-cover"
+          src="/videos/abertura.mp4" poster="/videos/abertura-capa.jpg"
+          autoPlay muted loop playsInline preload="metadata" aria-hidden
+        />
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,rgba(4,34,43,0.35)_0%,rgba(4,34,43,0.75)_75%)]" />
+        <div className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-[linear-gradient(180deg,transparent,rgba(4,34,43,0.9))]" />
+        <div className="container-site flex flex-col items-center pb-24 pt-32 text-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/marca/logo-clara.png" alt="GG Imóveis Litoral" className="h-28 w-auto animate-surgir drop-shadow-[0_8px_30px_rgba(0,0,0,0.45)] sm:h-36 md:h-44" />
+          <p className="rotulo mt-5 animate-surgir text-white/70 [animation-delay:150ms]">{SITE.creci} · Corretor Gustavo</p>
+          <p className="mt-6 max-w-2xl animate-surgir font-display text-2xl leading-snug text-white [animation-delay:300ms] md:text-4xl">
+            Seu imóvel no litoral paulista, com quem conhece <em className="text-[#ffd24d]">cada quadra</em>.
           </p>
-          <div className="mt-10 animate-surgir [animation-delay:360ms]">
+          <p className="mt-4 animate-surgir text-sm text-white/75 [animation-delay:420ms] md:text-base">
+            {cidades.map((c) => c.nome).join(" · ")}
+          </p>
+          <a href={linkWhatsApp("Olá! Vim pelo site e gostaria de falar sobre imóveis.")} target="_blank" rel="noopener"
+            className="mt-7 inline-flex animate-surgir items-center gap-2 rounded-full bg-whats px-6 py-3 font-medium text-white shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] transition [animation-delay:540ms] hover:brightness-110">
+            <IconeWhatsApp /> (13) 99777-1730
+          </a>
+          <div className="mt-10 w-full max-w-5xl animate-surgir text-left [animation-delay:680ms]">
             <BuscaRapida />
           </div>
         </div>
+        <a href="#disponiveis" aria-label="Ver imóveis disponíveis" className="absolute bottom-6 left-1/2 -translate-x-1/2 animate-bounce text-white/70 hover:text-white">
+          <IconeChevron className="rotate-90" width={30} height={30} />
+        </a>
       </section>
 
-      {/* DESTAQUES */}
-      <section className="container-site py-24 md:py-32">
-        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+      {/* IMÓVEIS DISPONÍVEIS (carrossel) */}
+      <section id="disponiveis" className="container-site scroll-mt-20 py-20 md:py-28">
+        <Revelar className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
-            <p className="rotulo text-latao-escuro">Selecionados</p>
-            <h2 className="mt-3 font-display text-4xl md:text-5xl">Imóveis em destaque</h2>
+            <p className="rotulo text-latao-escuro">{imoveis.length} {imoveis.length === 1 ? "imóvel disponível" : "imóveis disponíveis"}</p>
+            <h2 className="mt-3 font-display text-4xl md:text-5xl">Imóveis à venda e para alugar</h2>
           </div>
           <Link href="/imoveis/" className="flex items-center gap-2 font-medium text-mar hover:text-latao-escuro">
-            Ver todos os imóveis <IconeSeta />
+            Ver todos com filtros <IconeSeta />
           </Link>
-        </div>
-        <div className="mt-14 grid gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
-          {destaques.map((i) => (<CardImovel key={i.slug} imovel={i} />))}
+        </Revelar>
+        <Revelar atraso={150} className="mt-12">
+          <Carrossel rotulo="Imóveis disponíveis">
+            {destaques.map((i) => (<CardImovel key={i.slug} imovel={i} />))}
+          </Carrossel>
+        </Revelar>
+      </section>
+
+      {/* REGIÕES (carrossel) */}
+      <section id="regioes" className="scroll-mt-20 bg-nevoa py-20 md:py-28">
+        <div className="container-site">
+          <Revelar className="max-w-2xl">
+            <p className="rotulo text-latao-escuro">Onde atuo</p>
+            <h2 className="mt-3 font-display text-4xl md:text-5xl">Regiões que atendemos</h2>
+            <p className="mt-4 text-lg text-cinza">Escolha a cidade e veja os imóveis disponíveis em cada uma.</p>
+          </Revelar>
+          <Revelar atraso={150} className="mt-12">
+            <Carrossel rotulo="Regiões atendidas" intervalo={4500} larguraItem="min(80%,320px)">
+              {cidades.map((c) => {
+                const qtd = imoveis.filter((i) => i.cidade === c.nome).length;
+                return (
+                  <Link key={c.slug} href={`/imoveis/?cidade=${c.slug}`} className="group relative isolate flex aspect-[3/4] flex-col justify-end overflow-hidden rounded-sm p-6 text-white">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={c.imagem} alt="" loading="lazy" className="absolute inset-0 -z-10 h-full w-full object-cover transition duration-700 group-hover:scale-[1.06]" />
+                    <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(4,34,43,0)_35%,rgba(4,34,43,0.92)_100%)]" />
+                    <h3 className="font-display text-3xl">{c.nome}</h3>
+                    <p className="mt-2 line-clamp-2 text-sm text-white/80">{c.bairros.slice(0, 4).join(" · ")}</p>
+                    <span className="mt-4 flex items-center gap-2 text-sm font-medium text-[#ffd24d]">
+                      {qtd === 0 ? "Consultar imóveis" : `${qtd} ${qtd === 1 ? "imóvel disponível" : "imóveis disponíveis"}`} <IconeSeta width={16} height={16} />
+                    </span>
+                  </Link>
+                );
+              })}
+            </Carrossel>
+          </Revelar>
         </div>
       </section>
 
@@ -100,33 +146,6 @@ export default async function Inicio() {
               </li>
             ))}
           </ul>
-        </div>
-      </section>
-
-      {/* REGIÕES */}
-      <section id="regioes" className="container-site scroll-mt-20 py-24 md:py-32">
-        <div className="max-w-2xl">
-          <p className="rotulo text-latao-escuro">Onde atuo</p>
-          <h2 className="mt-3 font-display text-4xl md:text-5xl">Seis cidades, cada uma com seu jeito de viver o litoral</h2>
-        </div>
-        <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {cidades.map((c) => {
-            const qtd = imoveis.filter((i) => i.cidade === c.nome).length;
-            return (
-              <Link key={c.slug} href={`/imoveis/?cidade=${c.slug}`} className="group relative isolate flex min-h-[400px] flex-col justify-end overflow-hidden p-7 text-white">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={c.imagem} alt="" loading="lazy" className="absolute inset-0 -z-10 h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" />
-                <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(4,34,43,0.1)_0%,rgba(4,34,43,0.55)_45%,rgba(4,34,43,0.95)_100%)]" />
-                <p className="rotulo text-white/70">{c.coordenadas}</p>
-                <h3 className="mt-2 font-display text-4xl">{c.nome}</h3>
-                <p className="mt-3 max-w-md text-white/80">{c.texto}</p>
-                <p className="mt-4 text-sm text-white/65">{c.bairros.join(" · ")}</p>
-                <span className="mt-6 flex items-center gap-2 text-sm font-medium text-[#ffd24d]">
-                  {qtd === 0 ? "Consultar imóveis na região" : `${qtd} ${qtd === 1 ? "imóvel disponível" : "imóveis disponíveis"}`} <IconeSeta width={16} height={16} />
-                </span>
-              </Link>
-            );
-          })}
         </div>
       </section>
 

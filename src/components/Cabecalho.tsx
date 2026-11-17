@@ -37,7 +37,7 @@ export function Cabecalho() {
       }`}
     >
       <div className="container-site flex h-20 items-center justify-between gap-6">
-        <Link href="/" aria-label="GG Imóveis Litoral, página inicial">
+        <Link href="/" aria-label="GG Imóveis Litoral, página inicial" className={`transition-opacity duration-300 ${transparente ? "pointer-events-none opacity-0" : "opacity-100"}`}>
           <Logo claro={transparente} />
         </Link>
 

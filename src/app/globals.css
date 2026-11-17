@@ -56,3 +56,6 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* Nada pode passar da largura da tela no celular (carrosséis). */
+html, body { overflow-x: clip; }
