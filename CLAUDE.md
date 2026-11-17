@@ -50,6 +50,15 @@ WhatsApp (13) 99777-1730. Atende Santos, São Vicente, Praia Grande, Guarujá, M
 - **Testar local:** `npx opennextjs-cloudflare build && npx wrangler dev` (com `.dev.vars` de teste; não versionado).
 - Mudanças no banco: nova migração em `migrations/` + `npx wrangler d1 migrations apply gg-imoveis --remote`.
 
+## Álbuns de fotos guardados (para reaproveitar em outras captações)
+- Ficam no R2 `gg-imoveis-fotos` em `albuns/<nome>/NN.jpg` (não aparecem no site; baixar com
+  `npx wrangler r2 object get gg-imoveis-fotos/albuns/<nome>/01.jpg --file x.jpg --remote`).
+- `mongagua-ap-unidade` (16 fotos do apto 2 dorm. de Mongaguá, já na ordem do anúncio GG-0203) e
+  `mongagua-ap-condominio` (8 fotos: fachada, hall, salão de festas, garagens, varanda, lavanderia, cozinha).
+  O Gustavo vai pedir para colocar esses álbuns em mais 2 captações do mesmo prédio.
+- Para usar em outro imóvel: enviar CÓPIAS com chave nova `imoveis/<REF>/<uuid>.jpg` + linha na tabela `fotos`
+  (nunca reaproveitar a mesma URL /midia de outro imóvel: excluir a foto no painel apaga o arquivo do R2).
+
 ## Vídeos com IA (Higgsfield, conta nova do Gustavo, plano Iniciante)
 - Fluxo combinado: 1) gerar as IMAGENS primeiro (nano_banana_2_1, ~1,5 crédito) e mostrar ao Gustavo;
   2) só depois de ele aprovar, animar as escolhidas (seedance_2_0_mini 5 s 720p sem áudio, ~5 créditos);
