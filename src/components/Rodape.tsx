@@ -38,6 +38,7 @@ export function Rodape() {
             <li><Link href="/drone/" className="hover:text-white">Fotos com drone</Link></li>
             <li><Link href="/#atuacao" className="hover:text-white">Como trabalho</Link></li>
             <li><Link href="/contato/" className="hover:text-white">Contato</Link></li>
+            <li><Link href="/creditos/" className="hover:text-white">Créditos das fotos</Link></li>
           </ul>
         </div>
 

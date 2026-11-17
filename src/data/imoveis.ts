@@ -462,7 +462,7 @@ export const cidades: { nome: Cidade; slug: string; imagem: string; coordenadas:
   {
     nome: "Santos",
     slug: "santos",
-    imagem: img("santos"),
+    imagem: "/cidades/santos-orla.jpg",
     coordenadas: "23°57′S · 46°19′O",
     texto: "A maior orla ajardinada do país, com infraestrutura completa e bairros para todos os perfis.",
     bairros: ["Gonzaga", "Boqueirão", "Embaré", "Aparecida", "Ponta da Praia", "José Menino"],
@@ -470,7 +470,7 @@ export const cidades: { nome: Cidade; slug: string; imagem: string; coordenadas:
   {
     nome: "São Vicente",
     slug: "sao-vicente",
-    imagem: img("sao-vicente"),
+    imagem: "/cidades/sao-vicente-itarare.jpg",
     coordenadas: "23°58′S · 46°23′O",
     texto: "A primeira vila do Brasil, com praias tranquilas e ótimo custo-benefício perto de Santos.",
     bairros: ["Itararé", "Gonzaguinha", "Centro", "Boa Vista"],
@@ -478,7 +478,7 @@ export const cidades: { nome: Cidade; slug: string; imagem: string; coordenadas:
   {
     nome: "Praia Grande",
     slug: "praia-grande",
-    imagem: img("praia-grande"),
+    imagem: "/cidades/praia-grande-orla.jpg",
     coordenadas: "24°00′S · 46°24′O",
     texto: "Prédios novos com lazer completo e uma orla extensa, muito procurada por famílias.",
     bairros: ["Canto do Forte", "Boqueirão", "Guilhermina", "Aviação", "Tupi", "Ocian"],
@@ -486,7 +486,7 @@ export const cidades: { nome: Cidade; slug: string; imagem: string; coordenadas:
   {
     nome: "Guarujá",
     slug: "guaruja",
-    imagem: img("guaruja"),
+    imagem: "/cidades/guaruja-pitangueiras.jpg",
     coordenadas: "23°59′S · 46°15′O",
     texto: "Praias famosas, condomínios de alto padrão e o melhor do litoral para veraneio.",
     bairros: ["Pitangueiras", "Enseada", "Astúrias", "Tombo", "Jardim Acapulco", "Pernambuco"],
@@ -494,7 +494,7 @@ export const cidades: { nome: Cidade; slug: string; imagem: string; coordenadas:
   {
     nome: "Mongaguá",
     slug: "mongagua",
-    imagem: img("mongagua"),
+    imagem: "/cidades/mongagua-vista-mar.jpg",
     coordenadas: "24°05′S · 46°37′O",
     texto: "Praias tranquilas, a famosa plataforma de pesca e preços acessíveis para morar ou veranear.",
     bairros: ["Centro", "Vera Cruz", "Agenor de Campos", "Itaóca", "Flórida Mirim"],
@@ -502,7 +502,7 @@ export const cidades: { nome: Cidade; slug: string; imagem: string; coordenadas:
   {
     nome: "Itanhaém",
     slug: "itanhaem",
-    imagem: img("itanhaem"),
+    imagem: "/cidades/itanhaem-praia.jpg",
     coordenadas: "24°11′S · 46°47′O",
     texto: "Rio, mar e mata atlântica em uma das cidades mais antigas do país, com casas amplas e clima de interior.",
     bairros: ["Centro", "Praia dos Sonhos", "Cibratel", "Suarão", "Belas Artes"],

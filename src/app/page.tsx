@@ -35,7 +35,7 @@ export default async function Inicio() {
       <section className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-tinta">
         <video
           className="absolute inset-0 -z-10 h-full w-full object-cover"
-          src="/videos/abertura.mp4?v=2" poster="/videos/abertura-capa.jpg?v=2"
+          src="/videos/abertura.mp4?v=3" poster="/videos/abertura-capa.jpg?v=3"
           autoPlay muted loop playsInline preload="metadata" aria-hidden
         />
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,rgba(4,34,43,0.35)_0%,rgba(4,34,43,0.75)_75%)]" />
@@ -154,7 +154,7 @@ export default async function Inicio() {
         <div className="container-site grid items-center gap-14 py-24 md:py-28 lg:grid-cols-2">
           <div className="relative aspect-[4/3] overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/fotos/varanda-gourmet.jpg" alt="" loading="lazy" className="h-full w-full object-cover" />
+            <img src="/cidades/santos-jardins.jpg" alt="" loading="lazy" className="h-full w-full object-cover" />
           </div>
           <div>
             <p className="rotulo text-[#ffd24d]">Para proprietários</p>
@@ -184,14 +184,14 @@ export default async function Inicio() {
       {/* SERVIÇOS */}
       <section className="container-site grid gap-6 pt-24 md:grid-cols-3 md:pt-28">
         {[
-          { href: "/anunciar/", foto: "casa-praia", titulo: "Anuncie seu imóvel", texto: "Cadastre para vender ou alugar. Eu cuido das fotos, do anúncio e dos interessados." },
-          { href: "/avaliacao/", foto: "avaliacao", titulo: "Avaliação gratuita", texto: "Saiba quanto vale seu imóvel com base em negócios reais do bairro." },
-          { href: "/drone/", foto: "drone", titulo: "Fotos com drone", texto: "Imagens aéreas e vídeos que valorizam a vista e a localização." },
+          { href: "/anunciar/", foto: "sao-vicente-porchat", titulo: "Anuncie seu imóvel", texto: "Cadastre para vender ou alugar. Eu cuido das fotos, do anúncio e dos interessados." },
+          { href: "/avaliacao/", foto: "santos-predios", titulo: "Avaliação gratuita", texto: "Saiba quanto vale seu imóvel com base em negócios reais do bairro." },
+          { href: "/drone/", foto: "guaruja-aerea", titulo: "Fotos com drone", texto: "Imagens aéreas e vídeos que valorizam a vista e a localização." },
         ].map((s) => (
           <Link key={s.href} href={s.href} className="group flex flex-col">
             <span className="block aspect-[4/3] overflow-hidden bg-nevoa">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/fotos/${s.foto}.jpg`} alt="" loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" />
+              <img src={`/cidades/${s.foto}.jpg`} alt="" loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" />
             </span>
             <span className="mt-5 font-display text-2xl group-hover:text-mar">{s.titulo}</span>
             <span className="mt-2 text-cinza">{s.texto}</span>

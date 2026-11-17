@@ -27,7 +27,7 @@ export default function PaginaDrone() {
     <div className="pb-28">
       <section className="relative isolate overflow-hidden bg-tinta pb-20 pt-40 text-white md:pt-48">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/fotos/drone.jpg" alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" />
+        <img src="/cidades/guaruja-aerea.jpg" alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" />
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(4,34,43,0.9)_0%,rgba(4,34,43,0.55)_55%,rgba(4,34,43,0.2)_100%)]" />
         <div className="container-site">
           <p className="rotulo text-[#ffd24d]">Filmagem com drone</p>
@@ -82,15 +82,15 @@ export default function PaginaDrone() {
           <div className="mt-10 overflow-hidden rounded-sm bg-black shadow-[0_30px_60px_-30px_rgba(0,0,0,0.8)]">
             <video
               className="aspect-video w-full"
-              src="/videos/drone-exemplo.mp4"
-              poster="/videos/drone-exemplo-capa.jpg"
+              src="/videos/abertura.mp4?v=3"
+              poster="/videos/abertura-capa.jpg?v=3"
               controls
               muted
               playsInline
               preload="metadata"
             />
           </div>
-          <p className="mt-3 text-xs text-white/55">Vídeo de demonstração montado com imagens ilustrativas.</p>
+          <p className="mt-3 text-xs text-white/55">Imagens reais das cidades onde atendemos. Créditos das fotos na página <a href="/creditos/" className="underline">Créditos</a>.</p>
         </div>
       </section>
 
