@@ -35,7 +35,7 @@ export default async function Inicio() {
       <section className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-tinta">
         <video
           className="absolute inset-0 -z-10 h-full w-full object-cover"
-          src="/videos/abertura.mp4" poster="/videos/abertura-capa.jpg"
+          src="/videos/abertura.mp4?v=2" poster="/videos/abertura-capa.jpg?v=2"
           autoPlay muted loop playsInline preload="metadata" aria-hidden
         />
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,rgba(4,34,43,0.35)_0%,rgba(4,34,43,0.75)_75%)]" />
