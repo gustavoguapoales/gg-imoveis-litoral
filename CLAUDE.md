@@ -50,6 +50,12 @@ WhatsApp (13) 99777-1730. Atende Santos, São Vicente, Praia Grande, Guarujá, M
 - **Testar local:** `npx opennextjs-cloudflare build && npx wrangler dev` (com `.dev.vars` de teste; não versionado).
 - Mudanças no banco: nova migração em `migrations/` + `npx wrangler d1 migrations apply gg-imoveis --remote`.
 
+## Fotos das cidades (reais)
+- `public/cidades/*.jpg`: fotos reais do Wikimedia Commons (licenças CC BY/BY-SA/domínio público) + `mongagua-vista-mar` (foto do Gustavo).
+  Créditos obrigatórios em `src/data/creditos.ts` → página `/creditos` (link no rodapé). Vídeo de abertura `public/videos/abertura.mp4`
+  montado com essas fotos (ffmpeg, 1600x900). Rede do ambiente libera commons.wikimedia.org e upload.wikimedia.org
+  (miniaturas: trocar thumb.wikimedia.org por upload.wikimedia.org, larguras padrão 330/1920, User-Agent com contato; tem limite 429).
+
 ## Álbuns de fotos guardados (para reaproveitar em outras captações)
 - Ficam no R2 `gg-imoveis-fotos` em `albuns/<nome>/NN.jpg` (não aparecem no site; baixar com
   `npx wrangler r2 object get gg-imoveis-fotos/albuns/<nome>/01.jpg --file x.jpg --remote`).
